@@ -7,15 +7,19 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.farhad.quiz_question.All_StoreClass.WaitingControl;
 import com.farhad.quiz_question.BlockClass;
 import com.farhad.quiz_question.ClickActivity;
+import com.farhad.quiz_question.SmsActivity;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -35,6 +39,7 @@ import com.farhad.quiz_question.Questions;
 import com.farhad.quiz_question.R;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Locale;
 import java.util.Random;
 
 public class QuestionActivity extends AppCompatActivity {
@@ -51,10 +56,17 @@ public class QuestionActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (user == null){
+
+        if (mTimerRunning){
             finishAffinity();
+
+        }else {
+            if (user == null){
+                finishAffinity();
+            }
+            super.onBackPressed();
         }
-        super.onBackPressed();
+
     }
 
     Button questionCheckButton;
@@ -75,8 +87,22 @@ public class QuestionActivity extends AppCompatActivity {
     private String uId;
     FirebaseAuth auth;
     FirebaseUser user;
-
     private AdView mAdView;
+
+    //private static final long START_TIME_IN_MILLIS = 40000;
+
+    private static final long START_TIME_IN_MILLIS = 3599000;
+
+    private TextView waitingTV;
+    private CountDownTimer mCountDownTimer;
+    private boolean mTimerRunning;
+    private long mTimeLeftInMillis;
+    private long mEndTime;
+    int waitingScore;
+    SharedPreferences.Editor editor;
+
+    WaitingControl waitingControl;
+
 
 
 
@@ -96,8 +122,11 @@ public class QuestionActivity extends AppCompatActivity {
         questionCheckButton = findViewById(R.id.questionCheckButton_id);
         scoreTV = findViewById(R.id.questionScore_id);
         questionViewTV = findViewById(R.id.questionMain_id);
+        waitingTV = findViewById(R.id.questionWaiting_id);
+        waitingTV.setVisibility(View.GONE);
         questions = new Questions();
         questionControlClass = new QuestionControlClass(this);
+        waitingControl = new WaitingControl(this);
         r = new Random();
 
         updateQuestion(r.nextInt(mQuestionsLenght));
@@ -215,9 +244,17 @@ public class QuestionActivity extends AppCompatActivity {
             @Override
             public void onAdClosed() {
 
-                score = 1;
-                adsShowScore=0;
-                checkAnswer(score,mAnswer);
+                if (waitingControl.getScore() >0){
+                    startActivity(new Intent(QuestionActivity.this,QuestionActivity.class));
+                }else {
+                    score = 1;
+                    adsShowScore=0;
+                    checkAnswer(score,mAnswer);
+                }
+
+
+
+
             }
         });
 
@@ -239,7 +276,7 @@ public class QuestionActivity extends AppCompatActivity {
 
         builder.setTitle("Answer Panel");
         builder.setMessage("Congratulation..!"+"\n\n"+"You Answer is : "+answer+
-                "\n\n"+" Click Ok For Next Question ..." +
+                "\n\n"+" Click ok for next question ..." +
                 "\n")
                 .setCancelable(false)
                 .setPositiveButton(" Ok ", new DialogInterface.OnClickListener() {
@@ -305,5 +342,123 @@ public class QuestionActivity extends AppCompatActivity {
         });
 
     }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        editor = prefs.edit();
+        editor.putLong("millisLeft", mTimeLeftInMillis);
+        editor.putBoolean("timerRunning", mTimerRunning);
+        editor.putLong("endTime", mEndTime);
+        editor.apply();
+
+        if (mCountDownTimer != null) {
+            mCountDownTimer.cancel();
+        }
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+
+        mTimeLeftInMillis = prefs.getLong("millisLeft", START_TIME_IN_MILLIS);
+        mTimerRunning = prefs.getBoolean("timerRunning", false);
+
+
+
+        if (mTimerRunning) {
+            mEndTime = prefs.getLong("endTime", 0);
+            mTimeLeftInMillis = mEndTime - System.currentTimeMillis();
+
+            if (mTimeLeftInMillis < 0) {
+                mTimeLeftInMillis = 0;
+                mTimerRunning = false;
+                //updateCountDownText();
+
+                resetTimer();
+            } else {
+                waitingScore++;
+                startTimer();
+            }
+        }
+
+        if (waitingControl.getScore() >0){
+            waitingScore++;
+            startTimer();
+
+        }
+
+       /* Bundle bundle = getIntent().getExtras();
+        if (bundle != null){
+            startTimer();
+
+        }
+*/
+    }
+
+    private void startTimer() {
+        mEndTime = System.currentTimeMillis() + mTimeLeftInMillis;
+
+        mCountDownTimer = new CountDownTimer(mTimeLeftInMillis, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                mTimeLeftInMillis = millisUntilFinished;
+                updateCountDownText();
+            }
+
+            @Override
+            public void onFinish() {
+                mTimerRunning = false;
+                //updateButtons();
+                waitingScore=0;
+                resetTimer();
+
+            }
+        }.start();
+
+        mTimerRunning = true;
+    }
+
+
+
+    private void resetTimer() {
+        mTimeLeftInMillis = START_TIME_IN_MILLIS;
+        updateCountDownText();
+
+    }
+
+
+
+
+    private void updateCountDownText() {
+        int hour = (int) ((mTimeLeftInMillis/1000) /60) /60;
+        int minutes = (int) (mTimeLeftInMillis / 1000) / 60;
+        int seconds = (int) (mTimeLeftInMillis / 1000) % 60;
+
+        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d",hour, minutes, seconds);
+
+
+        if (waitingScore >=1){
+            waitingTV.setVisibility(View.VISIBLE);
+            questionCheckButton.setVisibility(View.GONE);
+            waitingTV.setText("Wait for continue Question.."+"\n"+timeLeftFormatted);
+        }else {
+            waitingTV.setVisibility(View.GONE);
+            questionCheckButton.setVisibility(View.VISIBLE);
+
+        }
+
+
+
+    }
+
+
+
+
 
 }

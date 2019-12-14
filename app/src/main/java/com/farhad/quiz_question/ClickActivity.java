@@ -40,7 +40,7 @@ public class ClickActivity extends AppCompatActivity {
     private InterstitialAd mInterstitialAd;
     private int adCount;
     private CountDownTimer countDownTimer;
-    private long timeLeft = 50000;
+    private long timeLeft = 59000;
     private boolean timeRunning;
     private String timeText;
     FirebaseAuth auth;

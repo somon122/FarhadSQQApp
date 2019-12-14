@@ -16,6 +16,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.view.GravityCompat;
 
+import com.farhad.quiz_question.All_StoreClass.WaitingControl;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
@@ -60,16 +61,18 @@ public class MainActivity extends AppCompatActivity {
 
     SharedPreferences.Editor editor;
 
-    private static final long START_TIME_IN_MILLIS = 20000;
+    //private static final long START_TIME_IN_MILLIS = 40000;
 
-    //private static final long START_TIME_IN_MILLIS = 3657000;
+    private static final long START_TIME_IN_MILLIS = 3599000;
 
 
     private CountDownTimer mCountDownTimer;
     private boolean mTimerRunning;
     private long mTimeLeftInMillis;
     private long mEndTime;
-    int waitingScore;
+    int waitingScore = 0;
+
+    private WaitingControl waitingControl;
 
 
     @Override
@@ -101,6 +104,9 @@ public class MainActivity extends AppCompatActivity {
         circleImageShowId = findViewById(R.id.circleImageShowId);
         TextView email = findViewById(R.id.homeProfileEmail_id);
         waitingTimerShow.setVisibility(View.GONE);
+        waitingControl = new WaitingControl(this);
+
+
 
 
         if (user != null){
@@ -118,19 +124,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                if (mTimerRunning){
-                   waitingTimerShow.setVisibility(View.VISIBLE);
-                }else {
-                    if (waitingScore == 0){
-                        startActivity(new Intent(MainActivity.this, QuizActivity.class));
 
-                    }else {
-                        waitingScore++;
-                        startTimer();
-                    }
-                }
-
-
+                    startActivity(new Intent(MainActivity.this, QuizActivity.class));
 
 
             }
@@ -142,19 +137,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                if (mTimerRunning){
-                    waitingTimerShow.setVisibility(View.VISIBLE);
-                }else {
-                    if (waitingScore == 0){
-                        startActivity(new Intent(MainActivity.this, QuestionActivity.class));
-
-                    }else {
-                        waitingScore++;
-                        startTimer();
-                    }
-                }
-
-
+                startActivity(new Intent(MainActivity.this, QuestionActivity.class));
 
             }
         });
@@ -163,17 +146,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                if (mTimerRunning){
-                    waitingTimerShow.setVisibility(View.VISIBLE);
-                }else {
-                    if (waitingScore == 0){
-                        startActivity(new Intent(MainActivity.this, SmsActivity.class));
+                    startActivity(new Intent(MainActivity.this, SmsActivity.class));
 
-                    }else {
-                        waitingScore++;
-                        startTimer();
-                    }
-                }
+
             }
         });
 
@@ -277,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        myRef.child("WaitingTime").child(uId).addValueEventListener(new ValueEventListener() {
+       /* myRef.child("WaitingTime").child(uId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -295,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
+*/
 
     }
 
@@ -412,7 +387,12 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        finishAffinity();
+                        if (waitingControl.getScore()==10){
+                            finishAffinity();
+                        }else {
+                            dialog.dismiss();
+                        }
+
 
                     }
                 }).setNeutralButton("Watch Time", new DialogInterface.OnClickListener() {
@@ -443,7 +423,6 @@ public class MainActivity extends AppCompatActivity {
             mTimeLeftInMillis = prefs.getLong("millisLeft", START_TIME_IN_MILLIS);
             mTimerRunning = prefs.getBoolean("timerRunning", false);
 
-
             if (mTimerRunning) {
                 mEndTime = prefs.getLong("endTime", 0);
                 mTimeLeftInMillis = mEndTime - System.currentTimeMillis();
@@ -451,22 +430,22 @@ public class MainActivity extends AppCompatActivity {
                 if (mTimeLeftInMillis < 0) {
                     mTimeLeftInMillis = 0;
                     mTimerRunning = false;
-                    waitingScore= 0;
                     resetTimer();
+
                 } else {
+
                     waitingScore++;
                     startTimer();
                 }
-            }else {
-
-               if (waitingScore == 0){
-                   quiz.setEnabled(true);
-                   questionImage.setEnabled(true);
-                   smsImage.setEnabled(true);
-               }else {
-                   startTimer();
-               }
             }
+
+           Bundle bundle = getIntent().getExtras();
+            if (bundle != null){
+                waitingControl.setStoreScore(10);
+            }
+
+
+
 
         }
     }
@@ -496,13 +475,14 @@ public class MainActivity extends AppCompatActivity {
             public void onTick(long millisUntilFinished) {
                 mTimeLeftInMillis = millisUntilFinished;
                 updateCountDownText();
+
             }
 
             @Override
             public void onFinish() {
                 mTimerRunning = false;
-               waitingScore = 0;
-               resetTimer();
+                waitingScore = 0;
+                resetTimer();
 
 
             }
@@ -518,10 +498,9 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
 
-                    quiz.setEnabled(true);
-                    questionImage.setEnabled(true);
-                    smsImage.setEnabled(true);
-
+                    waitingScore=0;
+                    Toast.makeText(MainActivity.this, "You are able to work", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(MainActivity.this, MainActivity.class));
 
                 }else {
                     Toast.makeText(MainActivity.this, "Please Check your net connection", Toast.LENGTH_SHORT).show();
@@ -547,21 +526,31 @@ public class MainActivity extends AppCompatActivity {
         String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d",hour, minutes, seconds);
 
 
+
         if (waitingScore >=1){
+
             quiz.setEnabled(false);
             questionImage.setEnabled(false);
             smsImage.setEnabled(false);
+            waitingTimerShow.setVisibility(View.VISIBLE);
             waitingTimerShow.setText("Waiting...\n"+timeLeftFormatted);
-            TimeAleart();
+
 
         }else {
+            waitingControl.Delete();
+            waitingTimerShow.setVisibility(View.GONE);
+            quiz.setEnabled(true);
+            questionImage.setEnabled(true);
+            smsImage.setEnabled(true);
             timeValueDelete();
+
 
 
         }
 
-
-
     }
+
+
+
 
 }

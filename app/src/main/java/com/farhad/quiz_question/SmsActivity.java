@@ -19,6 +19,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.farhad.quiz_question.All_StoreClass.SmsControl;
+import com.farhad.quiz_question.All_StoreClass.WaitingControl;
+import com.farhad.quiz_question.Quiz.QuizActivity;
 import com.farhad.quiz_question.Short_Question.QuestionActivity;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
@@ -80,6 +82,23 @@ public class SmsActivity extends AppCompatActivity  {
     private AdView mAdView;
 
 
+    //private static final long START_TIME_IN_MILLIS = 40000;
+
+    private static final long START_TIME_IN_MILLIS = 3599000;
+
+    private TextView waitingTV;
+    private CountDownTimer mCountDownTimer;
+    private boolean mTimerRunning;
+    private long mTimeLeftInMillis;
+    private long mEndTime;
+    int waitingScore;
+    SharedPreferences.Editor editor;
+
+    WaitingControl waitingControl;
+
+
+
+
 
 
     @Override
@@ -99,8 +118,12 @@ public class SmsActivity extends AppCompatActivity  {
         smsShareButton = findViewById(R.id.shareSms_id);
         smsShowTV = findViewById(R.id.smsView_id);
         smsCounterTV = findViewById(R.id.SmsCounter_id);
+        smsCounterTV = findViewById(R.id.SmsCounter_id);
+        waitingTV = findViewById(R.id.smsWaiting_id);
+        waitingTV.setVisibility(View.GONE);
 
         dialog = new ProgressDialog(this);
+        waitingControl = new WaitingControl(this);
 
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
@@ -244,7 +267,12 @@ public class SmsActivity extends AppCompatActivity  {
             @Override
             public void onAdClosed() {
 
-                adsShowScore=0;
+                if (waitingControl.getScore() >0){
+                    startActivity(new Intent(SmsActivity.this,SmsActivity.class));
+                }else {
+                    adsShowScore =0;
+                }
+
 
             }
         });
@@ -253,6 +281,14 @@ public class SmsActivity extends AppCompatActivity  {
 
     }
 
+    @Override
+    public void onBackPressed() {
+
+        if (mTimerRunning){
+            finishAffinity();
+        }
+        super.onBackPressed();
+    }
 
     private void updateQuestion(int num) {
 
@@ -296,6 +332,126 @@ public class SmsActivity extends AppCompatActivity  {
         });
 
     }
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        editor = prefs.edit();
+        editor.putLong("millisLeft", mTimeLeftInMillis);
+        editor.putBoolean("timerRunning", mTimerRunning);
+        editor.putLong("endTime", mEndTime);
+        editor.apply();
+
+        if (mCountDownTimer != null) {
+            mCountDownTimer.cancel();
+        }
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+
+        mTimeLeftInMillis = prefs.getLong("millisLeft", START_TIME_IN_MILLIS);
+        mTimerRunning = prefs.getBoolean("timerRunning", false);
+
+
+
+        if (mTimerRunning) {
+            mEndTime = prefs.getLong("endTime", 0);
+            mTimeLeftInMillis = mEndTime - System.currentTimeMillis();
+
+            if (mTimeLeftInMillis < 0) {
+                mTimeLeftInMillis = 0;
+                mTimerRunning = false;
+                //updateCountDownText();
+
+                resetTimer();
+            } else {
+                waitingScore++;
+                startTimer();
+            }
+        }
+
+        if (waitingControl.getScore() >0){
+            waitingScore++;
+            startTimer();
+
+        }
+
+       /* Bundle bundle = getIntent().getExtras();
+        if (bundle != null){
+            startTimer();
+
+        }
+*/
+    }
+
+    private void startTimer() {
+        mEndTime = System.currentTimeMillis() + mTimeLeftInMillis;
+
+        mCountDownTimer = new CountDownTimer(mTimeLeftInMillis, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                mTimeLeftInMillis = millisUntilFinished;
+                updateCountDownText();
+            }
+
+            @Override
+            public void onFinish() {
+                mTimerRunning = false;
+                //updateButtons();
+                waitingScore=0;
+                resetTimer();
+
+            }
+        }.start();
+
+        mTimerRunning = true;
+    }
+
+
+
+    private void resetTimer() {
+        mTimeLeftInMillis = START_TIME_IN_MILLIS;
+        updateCountDownText();
+
+    }
+
+
+
+
+    private void updateCountDownText() {
+        int hour = (int) ((mTimeLeftInMillis/1000) /60) /60;
+        int minutes = (int) (mTimeLeftInMillis / 1000) / 60;
+        int seconds = (int) (mTimeLeftInMillis / 1000) % 60;
+
+        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d",hour, minutes, seconds);
+
+
+        if (waitingScore >=1){
+            waitingTV.setVisibility(View.VISIBLE);
+            smsNextButton.setVisibility(View.GONE);
+            smsShareButton.setVisibility(View.GONE);
+            waitingTV.setText("Wait for continue SMS.."+"\n"+timeLeftFormatted);
+        }else {
+            waitingTV.setVisibility(View.GONE);
+            smsNextButton.setVisibility(View.VISIBLE);
+            smsShareButton.setVisibility(View.VISIBLE);
+
+        }
+
+
+
+    }
+
+
+
 
 
 }

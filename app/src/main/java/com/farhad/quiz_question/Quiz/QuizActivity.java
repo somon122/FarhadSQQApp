@@ -19,6 +19,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.farhad.quiz_question.All_StoreClass.WaitingControl;
 import com.farhad.quiz_question.BlockClass;
 import com.farhad.quiz_question.Short_Question.QuestionActivity;
 import com.google.android.gms.ads.AdListener;
@@ -89,6 +90,22 @@ public class QuizActivity extends AppCompatActivity {
 
 
 
+    SharedPreferences.Editor editor;
+
+    //private static final long START_TIME_IN_MILLIS = 40000;
+
+    private static final long START_TIME_IN_MILLIS = 3599000;
+
+    private TextView waitingTV;
+    private CountDownTimer mCountDownTimer;
+    private boolean mTimerRunning;
+    private long mTimeLeftInMillis;
+    private long mEndTime;
+    int waitingScore;
+    WaitingControl waitingControl;
+
+
+
 
 
     @Override
@@ -110,12 +127,15 @@ public class QuizActivity extends AppCompatActivity {
         answerButtonNo3 =  findViewById(R.id.answerNo3_id);
         answerButtonNo4 =  findViewById(R.id.answerNo4_id);
         submit =  findViewById(R.id.quizShowSubmit_id);
+        waitingTV =  findViewById(R.id.quizWaiting_id);
+        waitingTV.setVisibility(View.GONE);
 
         questionTV =  findViewById(R.id.question_id);
         counterTV =  findViewById(R.id.counter_id);
         radioGroup = findViewById(R.id.quizOptionGroup);
         scoreControl = new ScoreControl();
         quizControlClass = new QuizControlClass(this);
+        waitingControl = new WaitingControl(this);
 
 
         updateQuestion(r.nextInt(mQuestionsLenght));
@@ -213,9 +233,12 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onAdClosed() {
 
-                score = 1;
-                checkAnswer(score);
-
+                if (waitingControl.getScore() >0){
+                    startActivity(new Intent(QuizActivity.this,QuizActivity.class));
+                }else {
+                    score = 1;
+                    checkAnswer(score);
+                }
 
             }
         });
@@ -341,7 +364,7 @@ public class QuizActivity extends AppCompatActivity {
 
         builder.setTitle("Answer Panel");
         builder.setMessage("Congratulation..!"+"\n\n"+"You Answer is Correct"+
-                "\n"+" Click Ok For Next Quiz ..." +
+                "\n"+" Click ok for next quiz ..." +
                 "\n")
                 .setCancelable(false)
                 .setPositiveButton(" Ok ", new DialogInterface.OnClickListener() {
@@ -406,8 +429,125 @@ public class QuizActivity extends AppCompatActivity {
             stopPlayer();
         }
 
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        editor = prefs.edit();
+        editor.putLong("millisLeft", mTimeLeftInMillis);
+        editor.putBoolean("timerRunning", mTimerRunning);
+        editor.putLong("endTime", mEndTime);
+        editor.apply();
+
+        if (mCountDownTimer != null) {
+            mCountDownTimer.cancel();
+        }
+
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+
+        mTimeLeftInMillis = prefs.getLong("millisLeft", START_TIME_IN_MILLIS);
+        mTimerRunning = prefs.getBoolean("timerRunning", false);
+
+
+
+        if (mTimerRunning) {
+            mEndTime = prefs.getLong("endTime", 0);
+            mTimeLeftInMillis = mEndTime - System.currentTimeMillis();
+
+            if (mTimeLeftInMillis < 0) {
+                mTimeLeftInMillis = 0;
+                mTimerRunning = false;
+                //updateCountDownText();
+
+                resetTimer();
+            } else {
+                waitingScore++;
+                startTimer();
+            }
+        }
+
+        if (waitingControl.getScore() >0){
+            waitingScore++;
+            startTimer();
+
+        }
+
+       /* Bundle bundle = getIntent().getExtras();
+        if (bundle != null){
+            startTimer();
+
+        }
+*/
+    }
+
+    private void startTimer() {
+        mEndTime = System.currentTimeMillis() + mTimeLeftInMillis;
+
+        mCountDownTimer = new CountDownTimer(mTimeLeftInMillis, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                mTimeLeftInMillis = millisUntilFinished;
+                updateCountDownText();
+            }
+
+            @Override
+            public void onFinish() {
+                mTimerRunning = false;
+                //updateButtons();
+                waitingScore=0;
+                resetTimer();
+
+            }
+        }.start();
+
+        mTimerRunning = true;
+    }
+
+
+
+    private void resetTimer() {
+        mTimeLeftInMillis = START_TIME_IN_MILLIS;
+        updateCountDownText();
+
+    }
+
+
+
+
+    private void updateCountDownText() {
+        int hour = (int) ((mTimeLeftInMillis/1000) /60) /60;
+        int minutes = (int) (mTimeLeftInMillis / 1000) / 60;
+        int seconds = (int) (mTimeLeftInMillis / 1000) % 60;
+
+        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d",hour, minutes, seconds);
+
+
+        if (waitingScore >=1){
+            waitingTV.setVisibility(View.VISIBLE);
+            submit.setVisibility(View.GONE);
+            waitingTV.setText("Wait for continue quiz.."+"\n"+timeLeftFormatted);
+        }else {
+            waitingTV.setVisibility(View.GONE);
+            submit.setVisibility(View.VISIBLE);
+
+        }
+
+
+
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        if (mTimerRunning){
+            finishAffinity();
+        }else {
+            super.onBackPressed();
+        }
+    }
 
     private  void  blockUser(){
 

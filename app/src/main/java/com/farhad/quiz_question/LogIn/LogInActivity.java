@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.farhad.quiz_question.All_StoreClass.WaitingControl;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -38,6 +39,7 @@ public class LogInActivity extends AppCompatActivity {
     ProgressDialog dialog;
     private FirebaseDatabase database;
     private DatabaseReference myRef;
+    WaitingControl waitingControl;
 
 
     @Override
@@ -54,6 +56,7 @@ public class LogInActivity extends AppCompatActivity {
         logInButton = findViewById(R.id.logInId);
         emailEditText = findViewById(R.id.logInEmailId);
         passwordEditText = findViewById(R.id.logInPasswordId);
+        waitingControl = new WaitingControl(LogInActivity.this);
 
 
       /*  Bundle bundle = getIntent().getExtras();
@@ -161,11 +164,70 @@ public class LogInActivity extends AppCompatActivity {
 
                     String value = dataSnapshot.getValue(String.class);
                     int blockCount = Integer.parseInt(value);
-                    justify(blockCount);
+                    justify(blockCount,uId);
 
                 }else {
-                    dialog.dismiss();
+
+                     waitingMethod(uId);
+                   /* dialog.dismiss();
                     Toast.makeText(LogInActivity.this, "LogIn is successful", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(LogInActivity.this, MainActivity.class));
+                    finish();*/
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    private void justify(int point, String uId) {
+
+        if (point >=2){
+
+            FirebaseAuth.getInstance().signOut();
+            dialog.dismiss();
+            Toast.makeText(this, "your account is block for invalid click..!", Toast.LENGTH_SHORT).show();
+
+        }else {
+
+            waitingMethod(uId);
+
+           /* dialog.dismiss();
+            Toast.makeText(LogInActivity.this, point+"successful", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(LogInActivity.this, MainActivity.class));
+            finish();*/
+        }
+
+
+    }
+
+
+    private void waitingMethod(String uId){
+
+
+        myRef.child("WaitingTime").child(uId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                if (dataSnapshot.exists()){
+
+                    dialog.dismiss();
+                    Toast.makeText(LogInActivity.this, " Login successful", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(LogInActivity.this,MainActivity.class);
+                    intent.putExtra("Wait","wait");
+                    startActivity(intent);
+                    finish();
+
+                }else {
+
+                    dialog.dismiss();
+                    Toast.makeText(LogInActivity.this, " Login successful", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(LogInActivity.this, MainActivity.class));
                     finish();
 
@@ -181,24 +243,7 @@ public class LogInActivity extends AppCompatActivity {
 
     }
 
-    private void justify(int point) {
 
-        if (point >=2){
-
-            FirebaseAuth.getInstance().signOut();
-            dialog.dismiss();
-            Toast.makeText(this, "your account is block for invalid click..!", Toast.LENGTH_SHORT).show();
-
-        }else {
-
-            dialog.dismiss();
-            Toast.makeText(LogInActivity.this, point+"successful", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(LogInActivity.this, MainActivity.class));
-            finish();
-        }
-
-
-    }
 
 
     private void isLogIn() {
@@ -270,4 +315,6 @@ public class LogInActivity extends AppCompatActivity {
         super.onBackPressed();
         finishAffinity();
     }
+
+
 }

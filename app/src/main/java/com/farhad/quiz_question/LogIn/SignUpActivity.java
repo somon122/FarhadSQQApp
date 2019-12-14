@@ -180,8 +180,15 @@ public class SignUpActivity extends AppCompatActivity {
 
         }else {
 
-            Toast.makeText(this, "You are able Registered", Toast.LENGTH_SHORT).show();
-            isRegister(deviceId);
+            if (deviceId != null){
+
+                Toast.makeText(this, "You are able Registered", Toast.LENGTH_SHORT).show();
+                isRegister(deviceId);
+
+            }else {
+                Toast.makeText(this, "Please try again", Toast.LENGTH_SHORT).show();
+            }
+
 
         }
 

@@ -81,4 +81,20 @@
     </com.google.android.gms.ads.AdView>
 
 
+
+
+    <TextView
+        android:id="@+id/questionWaiting_id"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#0972DA"
+        android:textColor="#fff"
+        android:textSize="30sp"
+        android:text="00:00:00"
+        android:gravity="center"
+
+        />
+
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
