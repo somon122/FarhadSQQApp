@@ -45,11 +45,13 @@ public class ClickActivity extends AppCompatActivity {
     private String timeText;
     FirebaseAuth auth;
     FirebaseUser user;
+    String userEmail;
     FirebaseDatabase database;
     DatabaseReference myRef;
 
     String uId;
     int oldBalance;
+    int oldClicks;
 
 
     @Override
@@ -152,13 +154,30 @@ public class ClickActivity extends AppCompatActivity {
 
     private void notificationMethod() {
 
-
         myRef.child("UserMainPoints").child(uId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     String value = dataSnapshot.getValue(String.class);
                     oldBalance = Integer.valueOf(value);
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+
+            }
+        });
+
+        myRef.child("UserClickList").child(uId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    String value = dataSnapshot.getValue(String.class);
+                    oldClicks = Integer.valueOf(value);
 
                 }
 
@@ -222,7 +241,28 @@ public class ClickActivity extends AppCompatActivity {
 
                                     if (task.isSuccessful()){
 
-                                        adCount++;
+                                        int newClick= oldClicks+1;
+
+                                        myRef.child("UserClickList").child(uId).setValue(String.valueOf(newClick))
+                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+
+                                                if (task.isSuccessful()){
+
+                                                    adCount++;
+                                                }else {
+                                                    adCount++;
+
+                                                }
+
+                                            }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+
+                                            }
+                                        });
                                     }else {
                                         adCount++;
                                     }

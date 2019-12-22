@@ -156,7 +156,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                Toast.makeText(MainActivity.this, "Help coming soon..", Toast.LENGTH_SHORT).show();
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/joinchat/JT1GYRXeK3aW271tYAboQQ")));
+
+                }catch (ActivityNotFoundException e) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/joinchat/JT1GYRXeK3aW271tYAboQQ")));
+                }
 
 
             }
@@ -190,10 +195,10 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.nev_PrivacyPolicy){
 
             try {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://supernicetitle.blogspot.com/2019/06/privacy-policy-fnf-developer-built.html?m=1")));
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://supernicetitle.blogspot.com/2019/12/education-pass.html?m=1")));
 
             }catch (ActivityNotFoundException e) {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://supernicetitle.blogspot.com/2019/06/privacy-policy-fnf-developer-built.html?m=1")));
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://supernicetitle.blogspot.com/2019/12/education-pass.html?m=1")));
             }
 
         }
