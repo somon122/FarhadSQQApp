@@ -44,13 +44,13 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.Locale;
 import java.util.Random;
 
-public class SmsActivity extends AppCompatActivity  {
+public class SmsActivity extends AppCompatActivity {
 
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
-        if (item.getItemId() == android.R.id.home){
+        if (item.getItemId() == android.R.id.home) {
 
             this.finish();
         }
@@ -73,32 +73,31 @@ public class SmsActivity extends AppCompatActivity  {
     String smsText;
 
 
-    Button smsNextButton,smsShareButton;
-    TextView smsShowTV,smsCounterTV;
+    Button smsNextButton, smsShareButton;
+    TextView smsShowTV, smsCounterTV;
     SmsControl smsControl;
     int adsShowScore;
     int blockCount;
     int score;
     private AdView mAdView;
 
-
-    //private static final long START_TIME_IN_MILLIS = 40000;
+    private static final long START_TIME_IN_MILLIS2 = 5000;
+    private CountDownTimer mCountDownTimer2;
+    private boolean mTimerRunning2;
+    private long mTimeLeftInMillis2;
+    private long mEndTime2;
 
     private static final long START_TIME_IN_MILLIS = 3599000;
-
     private TextView waitingTV;
     private CountDownTimer mCountDownTimer;
     private boolean mTimerRunning;
     private long mTimeLeftInMillis;
     private long mEndTime;
+
     int waitingScore;
     SharedPreferences.Editor editor;
 
     WaitingControl waitingControl;
-
-
-
-
 
 
     @Override
@@ -135,11 +134,10 @@ public class SmsActivity extends AppCompatActivity  {
         r = new Random();
 
         updateQuestion(r.nextInt(mQuestionsLenght));
-        smsCounterTV.setText(smsControl.getScore()+"/"+"60");
+        smsCounterTV.setText(smsControl.getScore() + "/" + "60");
 
 
-
-        if (user != null){
+        if (user != null) {
             uId = user.getUid();
             blockUser();
 
@@ -147,7 +145,7 @@ public class SmsActivity extends AppCompatActivity  {
 
         MobileAds.initialize(this, getString(R.string.test_AppUnitId));
         mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId(getString(R.string.test_InterstitialAdUnit));
+        mInterstitialAd.setAdUnitId(getString(R.string.sms_InterstitialAdUnit));
 
         mAdView = findViewById(R.id.smsBanner_id);
         AdRequest adRequest = new AdRequest.Builder().build();
@@ -158,33 +156,33 @@ public class SmsActivity extends AppCompatActivity  {
             public void onClick(View view) {
 
                 score = 1;
-                int add = smsControl.getScore()+score;
+                int add = smsControl.getScore() + score;
                 smsControl.setStoreScore(add);
-                adsShowScore = adsShowScore+1;
+                adsShowScore = adsShowScore + 1;
                 updateQuestion(r.nextInt(mQuestionsLenght));
-                smsCounterTV.setText(smsControl.getScore()+"/"+"60");
+                smsCounterTV.setText(smsControl.getScore() + "/" + "60");
 
-                if (smsControl.getScore() >=59){
+                waitingTV.setVisibility(View.VISIBLE);
+                startTimer2();
+
+                if (smsControl.getScore() >= 59) {
                     smsControl.Delete();
-                    startActivity(new Intent(SmsActivity.this,ClickActivity.class));
+                    startActivity(new Intent(SmsActivity.this, SmsActivity.class));
                     finish();
 
-                }else {
+                } else {
 
-                    if (adsShowScore >=4) {
+                    if (adsShowScore >= 3) {
                         if (mInterstitialAd.isLoaded()) {
                             mInterstitialAd.show();
                         }
                     }
 
-                    if (adsShowScore>=3){
+                    if (adsShowScore >= 1) {
                         mInterstitialAd.loadAd(new AdRequest.Builder().build());
                     }
 
                 }
-
-
-
 
 
             }
@@ -199,7 +197,6 @@ public class SmsActivity extends AppCompatActivity  {
 
             }
         });
-
 
 
         mInterstitialAd.setAdListener(new AdListener() {
@@ -222,20 +219,20 @@ public class SmsActivity extends AppCompatActivity  {
             public void onAdLeftApplication() {
 
 
-                int add = blockCount+1;
+                int add = blockCount + 1;
 
-                if (add >=3){
+                if (add >= 3) {
 
-                    BlockClass blockClass = new BlockClass(uId,user.getDisplayName(),user.getEmail());
+                    BlockClass blockClass = new BlockClass(uId, user.getDisplayName(), user.getEmail());
                     myRef.child("BlockUser").child(uId).setValue(blockClass).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
+                            if (task.isSuccessful()) {
 
                                 Toast.makeText(SmsActivity.this, "You account is block", Toast.LENGTH_SHORT).show();
                                 auth.signOut();
 
-                            }else {
+                            } else {
                                 Toast.makeText(SmsActivity.this, "You are doing mistake", Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -246,13 +243,13 @@ public class SmsActivity extends AppCompatActivity  {
                         }
                     });
 
-                }else {
+                } else {
 
                     myRef.child("UserMistakeAmount").child(uId).setValue(String.valueOf(add)).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
 
-                            if (task.isSuccessful()){
+                            if (task.isSuccessful()) {
                                 Toast.makeText(SmsActivity.this, "You are doing mistake", Toast.LENGTH_SHORT).show();
 
                             }
@@ -267,10 +264,10 @@ public class SmsActivity extends AppCompatActivity  {
             @Override
             public void onAdClosed() {
 
-                if (waitingControl.getScore() >0){
-                    startActivity(new Intent(SmsActivity.this,SmsActivity.class));
-                }else {
-                    adsShowScore =0;
+                if (waitingControl.getScore() > 0) {
+                    startActivity(new Intent(SmsActivity.this, SmsActivity.class));
+                } else {
+                    startActivity(new Intent(SmsActivity.this, SmsActivity.class));
                 }
 
 
@@ -278,13 +275,12 @@ public class SmsActivity extends AppCompatActivity  {
         });
 
 
-
     }
 
     @Override
     public void onBackPressed() {
 
-        if (mTimerRunning){
+        if (mTimerRunning) {
             finishAffinity();
         }
         super.onBackPressed();
@@ -303,20 +299,20 @@ public class SmsActivity extends AppCompatActivity  {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
         String shareSub = "Romantic SMS";
-        intent.putExtra(Intent.EXTRA_SUBJECT,shareSub);
-        intent.putExtra(Intent.EXTRA_TEXT,text);
-        startActivity(Intent.createChooser(intent,"SMS World"));
+        intent.putExtra(Intent.EXTRA_SUBJECT, shareSub);
+        intent.putExtra(Intent.EXTRA_TEXT, text);
+        startActivity(Intent.createChooser(intent, "SMS World"));
 
     }
 
 
-    private  void  blockUser(){
+    private void blockUser() {
 
         myRef.child("UserMistakeAmount").child(uId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                if (dataSnapshot.exists()){
+                if (dataSnapshot.exists()) {
 
                     String value = dataSnapshot.getValue(String.class);
                     blockCount = Integer.parseInt(value);
@@ -361,7 +357,6 @@ public class SmsActivity extends AppCompatActivity  {
         mTimerRunning = prefs.getBoolean("timerRunning", false);
 
 
-
         if (mTimerRunning) {
             mEndTime = prefs.getLong("endTime", 0);
             mTimeLeftInMillis = mEndTime - System.currentTimeMillis();
@@ -369,7 +364,6 @@ public class SmsActivity extends AppCompatActivity  {
             if (mTimeLeftInMillis < 0) {
                 mTimeLeftInMillis = 0;
                 mTimerRunning = false;
-                //updateCountDownText();
 
                 resetTimer();
             } else {
@@ -378,18 +372,12 @@ public class SmsActivity extends AppCompatActivity  {
             }
         }
 
-        if (waitingControl.getScore() >0){
+        if (waitingControl.getScore() > 0) {
             waitingScore++;
             startTimer();
 
         }
 
-       /* Bundle bundle = getIntent().getExtras();
-        if (bundle != null){
-            startTimer();
-
-        }
-*/
     }
 
     private void startTimer() {
@@ -405,8 +393,7 @@ public class SmsActivity extends AppCompatActivity  {
             @Override
             public void onFinish() {
                 mTimerRunning = false;
-                //updateButtons();
-                waitingScore=0;
+                waitingScore = 0;
                 resetTimer();
 
             }
@@ -416,7 +403,6 @@ public class SmsActivity extends AppCompatActivity  {
     }
 
 
-
     private void resetTimer() {
         mTimeLeftInMillis = START_TIME_IN_MILLIS;
         updateCountDownText();
@@ -424,22 +410,20 @@ public class SmsActivity extends AppCompatActivity  {
     }
 
 
-
-
     private void updateCountDownText() {
-        int hour = (int) ((mTimeLeftInMillis/1000) /60) /60;
+        int hour = (int) ((mTimeLeftInMillis / 1000) / 60) / 60;
         int minutes = (int) (mTimeLeftInMillis / 1000) / 60;
         int seconds = (int) (mTimeLeftInMillis / 1000) % 60;
 
-        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d",hour, minutes, seconds);
+        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hour, minutes, seconds);
 
 
-        if (waitingScore >=1){
+        if (waitingScore >= 1) {
             waitingTV.setVisibility(View.VISIBLE);
             smsNextButton.setVisibility(View.GONE);
             smsShareButton.setVisibility(View.GONE);
-            waitingTV.setText("Wait for continue SMS.."+"\n"+timeLeftFormatted);
-        }else {
+            waitingTV.setText("Wait for continue SMS.." + "\n" + timeLeftFormatted);
+        } else {
             waitingTV.setVisibility(View.GONE);
             smsNextButton.setVisibility(View.VISIBLE);
             smsShareButton.setVisibility(View.VISIBLE);
@@ -447,8 +431,51 @@ public class SmsActivity extends AppCompatActivity  {
         }
 
 
+    }
+
+
+    private void startTimer2() {
+        mEndTime2 = System.currentTimeMillis() + mTimeLeftInMillis2;
+
+        mCountDownTimer2 = new CountDownTimer(mTimeLeftInMillis2, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                mTimeLeftInMillis2 = millisUntilFinished;
+                updateCountDownText2();
+            }
+
+            @Override
+            public void onFinish() {
+                mTimerRunning2 = false;
+                waitingTV.setVisibility(View.GONE);
+                resetTimer2();
+
+            }
+        }.start();
+
+        mTimerRunning2 = true;
+    }
+
+
+    private void resetTimer2() {
+        mTimeLeftInMillis2 = START_TIME_IN_MILLIS2;
+        updateCountDownText2();
 
     }
+
+
+    private void updateCountDownText2() {
+        int hour = (int) ((mTimeLeftInMillis2 / 1000) / 60) / 60;
+        int minutes = (int) (mTimeLeftInMillis2 / 1000) / 60;
+        int seconds = (int) (mTimeLeftInMillis2 / 1000) % 60;
+
+        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hour, minutes, seconds);
+
+        waitingTV.setText(timeLeftFormatted);
+
+
+    }
+
 
 
 

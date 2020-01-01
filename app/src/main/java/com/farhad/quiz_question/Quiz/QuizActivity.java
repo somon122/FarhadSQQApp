@@ -53,7 +53,7 @@ public class QuizActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
-        if (item.getItemId() == android.R.id.home){
+        if (item.getItemId() == android.R.id.home) {
             this.finish();
         }
         return super.onOptionsItemSelected(item);
@@ -61,7 +61,7 @@ public class QuizActivity extends AppCompatActivity {
 
 
     private RadioButton answerButtonNo1, answerButtonNo2, answerButtonNo3, answerButtonNo4;
-    private TextView questionTV,counterTV;
+    private TextView questionTV, counterTV;
 
     private Questions questions = new Questions();
     private String mAnswer;
@@ -69,7 +69,7 @@ public class QuizActivity extends AppCompatActivity {
     private Random r;
     int score;
     int blockCount = 0;
-    int adsShowCount=0;
+    int adsShowCount = 0;
 
     private RadioGroup radioGroup;
     private RadioButton radioButton;
@@ -89,11 +89,7 @@ public class QuizActivity extends AppCompatActivity {
     private AdView mAdView;
 
 
-
     SharedPreferences.Editor editor;
-
-    //private static final long START_TIME_IN_MILLIS = 40000;
-
     private static final long START_TIME_IN_MILLIS = 3599000;
 
     private TextView waitingTV;
@@ -103,9 +99,6 @@ public class QuizActivity extends AppCompatActivity {
     private long mEndTime;
     int waitingScore;
     WaitingControl waitingControl;
-
-
-
 
 
     @Override
@@ -123,15 +116,15 @@ public class QuizActivity extends AppCompatActivity {
         r = new Random();
 
         answerButtonNo1 = findViewById(R.id.answerNo1_id);
-        answerButtonNo2 =  findViewById(R.id.answerNo2_id);
-        answerButtonNo3 =  findViewById(R.id.answerNo3_id);
-        answerButtonNo4 =  findViewById(R.id.answerNo4_id);
-        submit =  findViewById(R.id.quizShowSubmit_id);
-        waitingTV =  findViewById(R.id.quizWaiting_id);
+        answerButtonNo2 = findViewById(R.id.answerNo2_id);
+        answerButtonNo3 = findViewById(R.id.answerNo3_id);
+        answerButtonNo4 = findViewById(R.id.answerNo4_id);
+        submit = findViewById(R.id.quizShowSubmit_id);
+        waitingTV = findViewById(R.id.quizWaiting_id);
         waitingTV.setVisibility(View.GONE);
 
-        questionTV =  findViewById(R.id.question_id);
-        counterTV =  findViewById(R.id.counter_id);
+        questionTV = findViewById(R.id.question_id);
+        counterTV = findViewById(R.id.counter_id);
         radioGroup = findViewById(R.id.quizOptionGroup);
         scoreControl = new ScoreControl();
         quizControlClass = new QuizControlClass(this);
@@ -139,7 +132,7 @@ public class QuizActivity extends AppCompatActivity {
 
 
         updateQuestion(r.nextInt(mQuestionsLenght));
-        counterTV.setText(quizControlClass.getScore()+"/"+"60");
+        counterTV.setText(quizControlClass.getScore() + "/" + "60");
 
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
@@ -147,22 +140,20 @@ public class QuizActivity extends AppCompatActivity {
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference("Users");
 
-        if (user != null){
+        if (user != null) {
             uId = user.getUid();
             blockUser();
 
         }
 
 
-
         MobileAds.initialize(this, getString(R.string.test_AppUnitId));
         mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId(getString(R.string.test_InterstitialAdUnit));
+        mInterstitialAd.setAdUnitId(getString(R.string.quiz_InterstitialAdUnit));
         mInterstitialAd.loadAd(new AdRequest.Builder().build());
         mAdView = findViewById(R.id.quizBanner_id);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
-
 
 
         mInterstitialAd.setAdListener(new AdListener() {
@@ -174,7 +165,7 @@ public class QuizActivity extends AppCompatActivity {
 
             @Override
             public void onAdFailedToLoad(int errorCode) {
-                // Code to be executed when an ad request fails.
+
             }
 
             @Override
@@ -185,20 +176,20 @@ public class QuizActivity extends AppCompatActivity {
             public void onAdLeftApplication() {
 
 
-                int add = blockCount+1;
+                int add = blockCount + 1;
 
-                if (add >=3){
+                if (add >= 3) {
 
-                    BlockClass blockClass = new BlockClass(uId,user.getDisplayName(),user.getEmail());
+                    BlockClass blockClass = new BlockClass(uId, user.getDisplayName(), user.getEmail());
                     myRef.child("BlockUser").child(uId).setValue(blockClass).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
+                            if (task.isSuccessful()) {
 
                                 Toast.makeText(QuizActivity.this, "You account is block", Toast.LENGTH_SHORT).show();
                                 auth.signOut();
 
-                            }else {
+                            } else {
                                 Toast.makeText(QuizActivity.this, "You are doing mistake", Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -209,16 +200,16 @@ public class QuizActivity extends AppCompatActivity {
                         }
                     });
 
-                }else {
+                } else {
 
                     myRef.child("UserMistakeAmount").child(uId).setValue(String.valueOf(add)).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
 
-                            if (task.isSuccessful()){
+                            if (task.isSuccessful()) {
                                 Toast.makeText(QuizActivity.this, "You are doing mistake", Toast.LENGTH_SHORT).show();
 
-                            }else {
+                            } else {
                                 Toast.makeText(QuizActivity.this, "You are doing mistake", Toast.LENGTH_SHORT).show();
                             }
 
@@ -227,22 +218,19 @@ public class QuizActivity extends AppCompatActivity {
                 }
 
 
-
             }
 
             @Override
             public void onAdClosed() {
 
-                if (waitingControl.getScore() >0){
-                    startActivity(new Intent(QuizActivity.this,QuizActivity.class));
-                }else {
-                    score = 1;
-                    checkAnswer(score);
+                if (waitingControl.getScore() > 0) {
+                    startActivity(new Intent(QuizActivity.this, QuizActivity.class));
+                } else {
+                    startActivity(new Intent(QuizActivity.this, QuizActivity.class));
                 }
 
             }
         });
-
 
 
         submit.setOnClickListener(new View.OnClickListener() {
@@ -250,21 +238,20 @@ public class QuizActivity extends AppCompatActivity {
             public void onClick(View view) {
 
 
-                if (radioGroup.getCheckedRadioButtonId() == -1){
+                if (radioGroup.getCheckedRadioButtonId() == -1) {
 
                     radioGroup.clearCheck();
                     Toast.makeText(QuizActivity.this, "Please select any one option", Toast.LENGTH_SHORT).show();
 
 
-
-                }else {
+                } else {
                     int radioId = radioGroup.getCheckedRadioButtonId();
                     radioButton = findViewById(radioId);
                     String status = radioButton.getText().toString();
 
                     if (status.equals(mAnswer)) {
 
-                        if (adsShowCount >= 4) {
+                        if (adsShowCount >= 2) {
                             if (mInterstitialAd.isLoaded()) {
                                 radioGroup.clearCheck();
                                 play();
@@ -284,12 +271,12 @@ public class QuizActivity extends AppCompatActivity {
                             checkAnswer(score);
                         }
 
-                    }else {
+                    } else {
 
                         radioGroup.clearCheck();
                         playWrong();
                         updateQuestion(r.nextInt(mQuestionsLenght));
-                        counterTV.setText(quizControlClass.getScore()+"/"+"60");
+                        counterTV.setText(quizControlClass.getScore() + "/" + "60");
 
                     }
                 }
@@ -299,13 +286,12 @@ public class QuizActivity extends AppCompatActivity {
         });
 
 
-
     }
 
     private void playWrong() {
 
-        if (player == null){
-            player = MediaPlayer.create(QuizActivity.this,R.raw.wrong_ans);
+        if (player == null) {
+            player = MediaPlayer.create(QuizActivity.this, R.raw.wrong_ans);
             player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mediaPlayer) {
@@ -319,12 +305,10 @@ public class QuizActivity extends AppCompatActivity {
     }
 
 
+    private void play() {
 
-
-    private void play (){
-
-        if (player == null){
-            player = MediaPlayer.create(QuizActivity.this,R.raw.carrect_answer);
+        if (player == null) {
+            player = MediaPlayer.create(QuizActivity.this, R.raw.carrect_answer);
             player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mediaPlayer) {
@@ -335,16 +319,14 @@ public class QuizActivity extends AppCompatActivity {
         player.start();
 
     }
-
 
 
     private void stopPlayer() {
-        if (player != null){
+        if (player != null) {
             player.release();
-            player=null;
+            player = null;
         }
     }
-
 
 
     private void updateQuestion(int num) {
@@ -358,13 +340,14 @@ public class QuizActivity extends AppCompatActivity {
 
 
     }
-    private void checkAnswer(final int mScore){
+
+    private void checkAnswer(final int mScore) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(QuizActivity.this);
 
         builder.setTitle("Answer Panel");
-        builder.setMessage("Congratulation..!"+"\n\n"+"You Answer is Correct"+
-                "\n"+" Click ok for next quiz ..." +
+        builder.setMessage("Congratulation..!" + "\n\n" + "You Answer is Correct" +
+                "\n" + " Click ok for next quiz ..." +
                 "\n")
                 .setCancelable(false)
                 .setPositiveButton(" Ok ", new DialogInterface.OnClickListener() {
@@ -372,30 +355,25 @@ public class QuizActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
 
-
-                        if (quizControlClass.getScore() >=59){
+                        if (quizControlClass.getScore() >= 59) {
 
                             timeIsRunning();
 
-                        }else {
+                        } else {
 
-                            adsShowCount = adsShowCount+1;
-                            int value = quizControlClass.getScore()+mScore;
+                            adsShowCount = adsShowCount + 1;
+                            int value = quizControlClass.getScore() + mScore;
                             quizControlClass.setStoreScore(value);
-
                             updateQuestion(r.nextInt(mQuestionsLenght));
-                            counterTV.setText(quizControlClass.getScore()+"/"+"60");
+                            counterTV.setText(quizControlClass.getScore() + "/" + "60");
 
 
-                            if (adsShowCount>=3){
+                            if (adsShowCount >= 1) {
                                 mInterstitialAd.loadAd(new AdRequest.Builder().build());
                             }
 
 
                         }
-
-
-
 
 
                     }
@@ -406,7 +384,6 @@ public class QuizActivity extends AppCompatActivity {
 
 
     }
-
 
 
     private void timeIsRunning() {
@@ -420,12 +397,11 @@ public class QuizActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     public void onStop() {
         super.onStop();
 
-        if (player != null){
+        if (player != null) {
             stopPlayer();
         }
 
@@ -452,7 +428,6 @@ public class QuizActivity extends AppCompatActivity {
         mTimerRunning = prefs.getBoolean("timerRunning", false);
 
 
-
         if (mTimerRunning) {
             mEndTime = prefs.getLong("endTime", 0);
             mTimeLeftInMillis = mEndTime - System.currentTimeMillis();
@@ -460,7 +435,6 @@ public class QuizActivity extends AppCompatActivity {
             if (mTimeLeftInMillis < 0) {
                 mTimeLeftInMillis = 0;
                 mTimerRunning = false;
-                //updateCountDownText();
 
                 resetTimer();
             } else {
@@ -469,18 +443,12 @@ public class QuizActivity extends AppCompatActivity {
             }
         }
 
-        if (waitingControl.getScore() >0){
+        if (waitingControl.getScore() > 0) {
             waitingScore++;
             startTimer();
 
         }
 
-       /* Bundle bundle = getIntent().getExtras();
-        if (bundle != null){
-            startTimer();
-
-        }
-*/
     }
 
     private void startTimer() {
@@ -497,7 +465,7 @@ public class QuizActivity extends AppCompatActivity {
             public void onFinish() {
                 mTimerRunning = false;
                 //updateButtons();
-                waitingScore=0;
+                waitingScore = 0;
                 resetTimer();
 
             }
@@ -507,7 +475,6 @@ public class QuizActivity extends AppCompatActivity {
     }
 
 
-
     private void resetTimer() {
         mTimeLeftInMillis = START_TIME_IN_MILLIS;
         updateCountDownText();
@@ -515,26 +482,23 @@ public class QuizActivity extends AppCompatActivity {
     }
 
 
-
-
     private void updateCountDownText() {
-        int hour = (int) ((mTimeLeftInMillis/1000) /60) /60;
+        int hour = (int) ((mTimeLeftInMillis / 1000) / 60) / 60;
         int minutes = (int) (mTimeLeftInMillis / 1000) / 60;
         int seconds = (int) (mTimeLeftInMillis / 1000) % 60;
 
-        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d",hour, minutes, seconds);
+        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hour, minutes, seconds);
 
 
-        if (waitingScore >=1){
+        if (waitingScore >= 1) {
             waitingTV.setVisibility(View.VISIBLE);
             submit.setVisibility(View.GONE);
-            waitingTV.setText("Wait for continue quiz.."+"\n"+timeLeftFormatted);
-        }else {
+            waitingTV.setText("Wait for continue quiz.." + "\n" + timeLeftFormatted);
+        } else {
             waitingTV.setVisibility(View.GONE);
             submit.setVisibility(View.VISIBLE);
 
         }
-
 
 
     }
@@ -542,20 +506,20 @@ public class QuizActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        if (mTimerRunning){
+        if (mTimerRunning) {
             finishAffinity();
-        }else {
+        } else {
             super.onBackPressed();
         }
     }
 
-    private  void  blockUser(){
+    private void blockUser() {
 
         myRef.child("UserMistakeAmount").child(uId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                if (dataSnapshot.exists()){
+                if (dataSnapshot.exists()) {
 
                     String value = dataSnapshot.getValue(String.class);
                     blockCount = Integer.parseInt(value);
@@ -571,7 +535,6 @@ public class QuizActivity extends AppCompatActivity {
         });
 
     }
-
 
 
 }

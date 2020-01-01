@@ -48,7 +48,7 @@ public class QuestionActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
-        if (item.getItemId() == android.R.id.home){
+        if (item.getItemId() == android.R.id.home) {
             this.finish();
         }
         return super.onOptionsItemSelected(item);
@@ -57,11 +57,11 @@ public class QuestionActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        if (mTimerRunning){
+        if (mTimerRunning) {
             finishAffinity();
 
-        }else {
-            if (user == null){
+        } else {
+            if (user == null) {
                 finishAffinity();
             }
             super.onBackPressed();
@@ -70,7 +70,7 @@ public class QuestionActivity extends AppCompatActivity {
     }
 
     Button questionCheckButton;
-    TextView scoreTV,questionViewTV;
+    TextView scoreTV, questionViewTV;
     private Questions questions = new Questions();
     private int mQuestionsLenght = questions.mQuestions.length;
     String mAnswer;
@@ -89,8 +89,6 @@ public class QuestionActivity extends AppCompatActivity {
     FirebaseUser user;
     private AdView mAdView;
 
-    //private static final long START_TIME_IN_MILLIS = 40000;
-
     private static final long START_TIME_IN_MILLIS = 3599000;
 
     private TextView waitingTV;
@@ -102,8 +100,6 @@ public class QuestionActivity extends AppCompatActivity {
     SharedPreferences.Editor editor;
 
     WaitingControl waitingControl;
-
-
 
 
     @Override
@@ -130,7 +126,7 @@ public class QuestionActivity extends AppCompatActivity {
         r = new Random();
 
         updateQuestion(r.nextInt(mQuestionsLenght));
-        scoreTV.setText(questionControlClass.getScore()+"/"+"60");
+        scoreTV.setText(questionControlClass.getScore() + "/" + "60");
 
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
@@ -139,29 +135,27 @@ public class QuestionActivity extends AppCompatActivity {
         myRef = database.getReference("Users");
 
 
-        if (user != null){
+        if (user != null) {
             uId = user.getUid();
-           // balanceControl();
             blockUser();
         }
-
 
 
         questionCheckButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                if (adsShowScore >=4){
-                    if (mInterstitialAd.isLoaded()){
+                if (adsShowScore >= 2) {
+                    if (mInterstitialAd.isLoaded()) {
                         mInterstitialAd.show();
 
-                    }else {
+                    } else {
                         score = 1;
-                        checkAnswer(score,mAnswer);
+                        checkAnswer(score, mAnswer);
                     }
-                }else {
+                } else {
                     score = 1;
-                    checkAnswer(score,mAnswer);
+                    checkAnswer(score, mAnswer);
                 }
 
 
@@ -171,7 +165,7 @@ public class QuestionActivity extends AppCompatActivity {
 
         MobileAds.initialize(this, getString(R.string.test_AppUnitId));
         mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId(getString(R.string.test_InterstitialAdUnit));
+        mInterstitialAd.setAdUnitId(getString(R.string.question_InterstitialAdUnit));
         mInterstitialAd.loadAd(new AdRequest.Builder().build());
 
         mAdView = findViewById(R.id.questionBanner_id);
@@ -188,7 +182,6 @@ public class QuestionActivity extends AppCompatActivity {
 
             @Override
             public void onAdFailedToLoad(int errorCode) {
-                // Code to be executed when an ad request fails.
             }
 
             @Override
@@ -199,20 +192,20 @@ public class QuestionActivity extends AppCompatActivity {
             public void onAdLeftApplication() {
 
 
-                int add = blockCount+1;
+                int add = blockCount + 1;
 
-                if (add >=3){
+                if (add >= 3) {
 
-                    BlockClass blockClass = new BlockClass(uId,user.getDisplayName(),user.getEmail());
+                    BlockClass blockClass = new BlockClass(uId, user.getDisplayName(), user.getEmail());
                     myRef.child("BlockUser").child(uId).setValue(blockClass).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
+                            if (task.isSuccessful()) {
 
                                 Toast.makeText(QuestionActivity.this, "You account is block", Toast.LENGTH_SHORT).show();
                                 auth.signOut();
 
-                            }else {
+                            } else {
                                 Toast.makeText(QuestionActivity.this, "You are doing mistake", Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -223,13 +216,13 @@ public class QuestionActivity extends AppCompatActivity {
                         }
                     });
 
-                }else {
+                } else {
 
                     myRef.child("UserMistakeAmount").child(uId).setValue(String.valueOf(add)).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
 
-                            if (task.isSuccessful()){
+                            if (task.isSuccessful()) {
                                 Toast.makeText(QuestionActivity.this, "You are doing mistake", Toast.LENGTH_SHORT).show();
 
                             }
@@ -244,21 +237,16 @@ public class QuestionActivity extends AppCompatActivity {
             @Override
             public void onAdClosed() {
 
-                if (waitingControl.getScore() >0){
-                    startActivity(new Intent(QuestionActivity.this,QuestionActivity.class));
-                }else {
-                    score = 1;
-                    adsShowScore=0;
-                    checkAnswer(score,mAnswer);
+                if (waitingControl.getScore() > 0) {
+                    startActivity(new Intent(QuestionActivity.this, QuestionActivity.class));
+                } else {
+                    startActivity(new Intent(QuestionActivity.this, QuestionActivity.class));
+
                 }
-
-
 
 
             }
         });
-
-
 
 
     }
@@ -270,13 +258,14 @@ public class QuestionActivity extends AppCompatActivity {
 
 
     }
-    private void checkAnswer(final int mScore, String answer){
+
+    private void checkAnswer(final int mScore, String answer) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(QuestionActivity.this);
 
         builder.setTitle("Answer Panel");
-        builder.setMessage("Congratulation..!"+"\n\n"+"You Answer is : "+answer+
-                "\n\n"+" Click ok for next question ..." +
+        builder.setMessage("Congratulation..!" + "\n\n" + "You Answer is : " + answer +
+                "\n\n" + " Click ok for next question ..." +
                 "\n")
                 .setCancelable(false)
                 .setPositiveButton(" Ok ", new DialogInterface.OnClickListener() {
@@ -284,31 +273,27 @@ public class QuestionActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
 
+                        if (questionControlClass.getScore() >= 59) {
 
-                        if (questionControlClass.getScore() >=59){
-
-                          questionControlClass.Delete();
-                          startActivity(new Intent(QuestionActivity.this, ClickActivity.class));
-                          finish();
+                            questionControlClass.Delete();
+                            startActivity(new Intent(QuestionActivity.this, ClickActivity.class));
+                            finish();
 
 
-                        }else {
+                        } else {
 
-                            adsShowScore = adsShowScore+1;
-                            int value = questionControlClass.getScore()+mScore;
+                            adsShowScore = adsShowScore + 1;
+                            int value = questionControlClass.getScore() + mScore;
                             questionControlClass.setStoreScore(value);
                             updateQuestion(r.nextInt(mQuestionsLenght));
-                            scoreTV.setText(questionControlClass.getScore()+"/"+"60");
+                            scoreTV.setText(questionControlClass.getScore() + "/" + "60");
 
-                            if (adsShowScore>=3){
+                            if (adsShowScore >= 1) {
                                 mInterstitialAd.loadAd(new AdRequest.Builder().build());
                             }
 
 
                         }
-
-
-
 
 
                     }
@@ -320,13 +305,13 @@ public class QuestionActivity extends AppCompatActivity {
 
     }
 
-    private  void  blockUser(){
+    private void blockUser() {
 
         myRef.child("UserMistakeAmount").child(uId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                if (dataSnapshot.exists()){
+                if (dataSnapshot.exists()) {
 
                     String value = dataSnapshot.getValue(String.class);
                     blockCount = Integer.parseInt(value);
@@ -370,7 +355,6 @@ public class QuestionActivity extends AppCompatActivity {
         mTimerRunning = prefs.getBoolean("timerRunning", false);
 
 
-
         if (mTimerRunning) {
             mEndTime = prefs.getLong("endTime", 0);
             mTimeLeftInMillis = mEndTime - System.currentTimeMillis();
@@ -378,7 +362,6 @@ public class QuestionActivity extends AppCompatActivity {
             if (mTimeLeftInMillis < 0) {
                 mTimeLeftInMillis = 0;
                 mTimerRunning = false;
-                //updateCountDownText();
 
                 resetTimer();
             } else {
@@ -387,18 +370,12 @@ public class QuestionActivity extends AppCompatActivity {
             }
         }
 
-        if (waitingControl.getScore() >0){
+        if (waitingControl.getScore() > 0) {
             waitingScore++;
             startTimer();
 
         }
 
-       /* Bundle bundle = getIntent().getExtras();
-        if (bundle != null){
-            startTimer();
-
-        }
-*/
     }
 
     private void startTimer() {
@@ -414,8 +391,7 @@ public class QuestionActivity extends AppCompatActivity {
             @Override
             public void onFinish() {
                 mTimerRunning = false;
-                //updateButtons();
-                waitingScore=0;
+                waitingScore = 0;
                 resetTimer();
 
             }
@@ -425,7 +401,6 @@ public class QuestionActivity extends AppCompatActivity {
     }
 
 
-
     private void resetTimer() {
         mTimeLeftInMillis = START_TIME_IN_MILLIS;
         updateCountDownText();
@@ -433,32 +408,25 @@ public class QuestionActivity extends AppCompatActivity {
     }
 
 
-
-
     private void updateCountDownText() {
-        int hour = (int) ((mTimeLeftInMillis/1000) /60) /60;
+        int hour = (int) ((mTimeLeftInMillis / 1000) / 60) / 60;
         int minutes = (int) (mTimeLeftInMillis / 1000) / 60;
         int seconds = (int) (mTimeLeftInMillis / 1000) % 60;
 
-        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d",hour, minutes, seconds);
+        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hour, minutes, seconds);
 
 
-        if (waitingScore >=1){
+        if (waitingScore >= 1) {
             waitingTV.setVisibility(View.VISIBLE);
             questionCheckButton.setVisibility(View.GONE);
-            waitingTV.setText("Wait for continue Question.."+"\n"+timeLeftFormatted);
-        }else {
+            waitingTV.setText("Wait for continue Question.." + "\n" + timeLeftFormatted);
+        } else {
             waitingTV.setVisibility(View.GONE);
             questionCheckButton.setVisibility(View.VISIBLE);
 
         }
 
 
-
     }
-
-
-
-
 
 }

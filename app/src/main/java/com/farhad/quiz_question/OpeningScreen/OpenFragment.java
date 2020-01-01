@@ -42,21 +42,19 @@ public class OpenFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_open, container, false);
 
 
-
         progressBar = root.findViewById(R.id.progressBar);
         refressTV = root.findViewById(R.id.reload_id);
         refressTV.setVisibility(View.GONE);
 
 
-        if (HaveNetwork()){
+        if (HaveNetwork()) {
 
             CircleImageView openImageView_id = root.findViewById(R.id.openImageView_id);
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-            if (user != null){
+            if (user != null) {
                 Picasso.get().load(user.getPhotoUrl()).placeholder(R.drawable.app_logo).into(openImageView_id);
             }
-
 
 
             Thread thread = new Thread(new Runnable() {
@@ -68,7 +66,7 @@ public class OpenFragment extends Fragment {
             });
             thread.start();
 
-        }else {
+        } else {
 
             Toast.makeText(getContext(), "Please connect your Internet first", Toast.LENGTH_SHORT).show();
             refressTV.setVisibility(View.VISIBLE);
@@ -77,11 +75,9 @@ public class OpenFragment extends Fragment {
         refressTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getContext(),SplashActivity.class));
+                startActivity(new Intent(getContext(), SplashActivity.class));
             }
         });
-
-
 
 
         return root;
@@ -89,7 +85,7 @@ public class OpenFragment extends Fragment {
     }
 
     private void startApp() {
-        Intent intent = new Intent(getContext(),MainActivity.class);
+        Intent intent = new Intent(getContext(), MainActivity.class);
         startActivity(intent);
 
 
@@ -97,7 +93,7 @@ public class OpenFragment extends Fragment {
 
     private void doTheWork() {
 
-        for (progress = 25; progress <= 100; progress = progress+25){
+        for (progress = 25; progress <= 100; progress = progress + 25) {
             try {
                 Thread.sleep(1000);
                 progressBar.setProgress(progress);
@@ -107,29 +103,24 @@ public class OpenFragment extends Fragment {
         }
 
 
+    }
 
-
-    } private boolean HaveNetwork() {
+    private boolean HaveNetwork() {
         boolean have_WiFi = false;
         boolean have_Mobile = false;
 
-        ConnectivityManager connectivityManager = (ConnectivityManager)getContext().getSystemService(CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(CONNECTIVITY_SERVICE);
         NetworkInfo[] networkInfo = connectivityManager.getAllNetworkInfo();
 
-        for (NetworkInfo info : networkInfo){
+        for (NetworkInfo info : networkInfo) {
 
-            if (info.getTypeName().equalsIgnoreCase("WIFI"))
-            {
-                if (info.isConnected())
-                {
+            if (info.getTypeName().equalsIgnoreCase("WIFI")) {
+                if (info.isConnected()) {
                     have_WiFi = true;
                 }
             }
-            if (info.getTypeName().equalsIgnoreCase("MOBILE"))
-
-            {
-                if (info.isConnected())
-                {
+            if (info.getTypeName().equalsIgnoreCase("MOBILE")) {
+                if (info.isConnected()) {
                     have_Mobile = true;
                 }
             }

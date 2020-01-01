@@ -59,14 +59,6 @@ public class LogInActivity extends AppCompatActivity {
         waitingControl = new WaitingControl(LogInActivity.this);
 
 
-      /*  Bundle bundle = getIntent().getExtras();
-
-        if (bundle != null){
-
-            emailVerificationAlert();
-
-        }*/
-
         dialog = new ProgressDialog(this);
 
         logInButton.setOnClickListener(new View.OnClickListener() {
@@ -74,11 +66,11 @@ public class LogInActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 ClickControl clickControl = new ClickControl(LogInActivity.this);
-                if (clickControl.getScore() <=0){
+                if (clickControl.getScore() <= 0) {
 
                     isLogIn();
-                }else {
-                   dattClearAlert();
+                } else {
+                    dattClearAlert();
                 }
 
 
@@ -89,44 +81,14 @@ public class LogInActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
-                startActivity(new Intent(LogInActivity.this,SignUpActivity.class));
+                startActivity(new Intent(LogInActivity.this, SignUpActivity.class));
             }
         });
 
 
     }
 
-
-    private void emailVerificationAlert(){
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(LogInActivity.this);
-
-        builder.setTitle("Email Verification Alert")
-                .setMessage("Please check your email and confirm email for access this app ")
-                .setCancelable(false)
-                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-
-                    }
-                }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-                finish();
-
-            }
-        });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-
-
-    }
-
-
- private void dattClearAlert(){
+    private void dattClearAlert() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(LogInActivity.this);
 
@@ -143,7 +105,7 @@ public class LogInActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 
-               finishAffinity();
+                finishAffinity();
 
             }
         });
@@ -154,26 +116,21 @@ public class LogInActivity extends AppCompatActivity {
 
     }
 
-    private  void  blockUser(final String uId){
+    private void blockUser(final String uId) {
 
         myRef.child("UserMistakeAmount").child(uId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                if (dataSnapshot.exists()){
+                if (dataSnapshot.exists()) {
 
                     String value = dataSnapshot.getValue(String.class);
                     int blockCount = Integer.parseInt(value);
-                    justify(blockCount,uId);
+                    justify(blockCount, uId);
 
-                }else {
+                } else {
 
-                     waitingMethod(uId);
-                   /* dialog.dismiss();
-                    Toast.makeText(LogInActivity.this, "LogIn is successful", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(LogInActivity.this, MainActivity.class));
-                    finish();*/
-
+                    waitingMethod(uId);
                 }
 
             }
@@ -188,43 +145,38 @@ public class LogInActivity extends AppCompatActivity {
 
     private void justify(int point, String uId) {
 
-        if (point >=2){
+        if (point >= 2) {
 
             FirebaseAuth.getInstance().signOut();
             dialog.dismiss();
             Toast.makeText(this, "your account is block for invalid click..!", Toast.LENGTH_SHORT).show();
 
-        }else {
+        } else {
 
             waitingMethod(uId);
-
-           /* dialog.dismiss();
-            Toast.makeText(LogInActivity.this, point+"successful", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(LogInActivity.this, MainActivity.class));
-            finish();*/
         }
 
 
     }
 
 
-    private void waitingMethod(String uId){
+    private void waitingMethod(String uId) {
 
 
         myRef.child("WaitingTime").child(uId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                if (dataSnapshot.exists()){
+                if (dataSnapshot.exists()) {
 
                     dialog.dismiss();
                     Toast.makeText(LogInActivity.this, " Login successful", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(LogInActivity.this,MainActivity.class);
-                    intent.putExtra("Wait","wait");
+                    Intent intent = new Intent(LogInActivity.this, MainActivity.class);
+                    intent.putExtra("Wait", "wait");
                     startActivity(intent);
                     finish();
 
-                }else {
+                } else {
 
                     dialog.dismiss();
                     Toast.makeText(LogInActivity.this, " Login successful", Toast.LENGTH_SHORT).show();
@@ -242,8 +194,6 @@ public class LogInActivity extends AppCompatActivity {
         });
 
     }
-
-
 
 
     private void isLogIn() {
@@ -286,28 +236,6 @@ public class LogInActivity extends AppCompatActivity {
 
 
     }
-
-    private void checkEmailVerification(){
-
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        Boolean isVerified = firebaseUser.isEmailVerified();
-
-
-        if (isVerified){
-                dialog.dismiss();
-                Toast.makeText(LogInActivity.this, "LogIn is successful", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(LogInActivity.this, MainActivity.class));
-                finish();
-
-
-        }else {
-            Toast.makeText(this, "Please verify your email first ", Toast.LENGTH_SHORT).show();
-            FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(LogInActivity.this, LogInActivity.class));
-        }
-
-    }
-
 
 
     @Override

@@ -7,23 +7,20 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Log_out</string>
 
-
-
     <string name="menu_home">Home</string>
     <string name="menu_share">Share</string>
     <string name="menu_rateUs">Rate us</string>
 
+    <string name="test_AppUnitId">ca-app-pub-2342187023946183~6508777224</string>
 
-  <!--  <string name="test_AppUnitId">ca-app-pub-2342187023946183~6508777224</string>
-    <string name="banner_ad_unit_id">ca-app-pub-2342187023946183/8069270909</string>
-    <string name="test_InterstitialAdUnit">ca-app-pub-2342187023946183/5443107565</string>
+    <string name="banner_ad_unit_id">ca-app-pub-2342187023946183/3964538191</string>
 
-    <string name="test_RewardedVideoUnit">ca-app-pub-3940256099942544/5224354917</string>
+    <string name="click_InterstitialAdUnit">ca-app-pub-2342187023946183/2857316566</string>
 
--->
-    <string name="test_AppUnitId">ca-app-pub-3940256099942544~3347511713</string>
-    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
-    <string name="test_RewardedVideoUnit">ca-app-pub-3940256099942544/5224354917</string>
-    <string name="test_InterstitialAdUnit">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="sms_InterstitialAdUnit">ca-app-pub-2342187023946183/7363537784</string>
+    <string name="quiz_InterstitialAdUnit">ca-app-pub-2342187023946183/2111211103</string>
+    <string name="question_InterstitialAdUnit">ca-app-pub-2342187023946183/2459884833</string>
+
+
 
 </resources>

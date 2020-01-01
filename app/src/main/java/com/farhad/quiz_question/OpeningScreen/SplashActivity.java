@@ -14,7 +14,6 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-/// for window full screen
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -30,7 +29,7 @@ public class SplashActivity extends AppCompatActivity {
     private void openFragmentMethod(OpenFragment openFragment) {
 
         FragmentManager manager = getSupportFragmentManager();
-        manager.beginTransaction().replace(R.id.openHost,openFragment)
+        manager.beginTransaction().replace(R.id.openHost, openFragment)
                 .commit();
 
     }

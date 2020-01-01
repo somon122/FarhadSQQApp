@@ -17,7 +17,7 @@ public class AboutMeActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
-        if (item.getItemId() == android.R.id.home){
+        if (item.getItemId() == android.R.id.home) {
 
             this.finish();
         }
@@ -46,7 +46,7 @@ public class AboutMeActivity extends AppCompatActivity {
                 try {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/joinchat/JT1GYRXeK3aW271tYAboQQ")));
 
-                }catch (ActivityNotFoundException e) {
+                } catch (ActivityNotFoundException e) {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/joinchat/JT1GYRXeK3aW271tYAboQQ")));
                 }
 

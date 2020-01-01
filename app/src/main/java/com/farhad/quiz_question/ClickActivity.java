@@ -33,8 +33,6 @@ import com.google.firebase.database.ValueEventListener;
 public class ClickActivity extends AppCompatActivity {
 
 
-
-    private TextView showScore;
     private Button clickButton;
 
     private InterstitialAd mInterstitialAd;
@@ -45,7 +43,6 @@ public class ClickActivity extends AppCompatActivity {
     private String timeText;
     FirebaseAuth auth;
     FirebaseUser user;
-    String userEmail;
     FirebaseDatabase database;
     DatabaseReference myRef;
 
@@ -60,9 +57,8 @@ public class ClickActivity extends AppCompatActivity {
         setContentView(R.layout.activity_click);
 
 
-
         auth = FirebaseAuth.getInstance();
-        user= auth.getCurrentUser();
+        user = auth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference("Users");
 
@@ -70,28 +66,25 @@ public class ClickActivity extends AppCompatActivity {
             uId = user.getUid();
             notificationMethod();
         }
-        showScore = findViewById(R.id.clickScoreShow_id);
         clickButton = findViewById(R.id.clickButton_id);
-
 
 
         MobileAds.initialize(this, getString(R.string.test_AppUnitId));
         mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId(getString(R.string.test_InterstitialAdUnit));
+        mInterstitialAd.setAdUnitId(getString(R.string.click_InterstitialAdUnit));
         mInterstitialAd.loadAd(new AdRequest.Builder().build());
 
 
         clickButton.setVisibility(View.GONE);
 
 
-
         clickButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                if (mInterstitialAd.isLoaded()){
+                if (mInterstitialAd.isLoaded()) {
                     mInterstitialAd.show();
-                }else {
+                } else {
 
                     Toast.makeText(ClickActivity.this, " Try Again.. Ok! ", Toast.LENGTH_SHORT).show();
 
@@ -108,7 +101,6 @@ public class ClickActivity extends AppCompatActivity {
 
                 clickButton.setVisibility(View.VISIBLE);
 
-                // Code to be executed when an ad finishes loading.
             }
 
             @Override
@@ -131,14 +123,14 @@ public class ClickActivity extends AppCompatActivity {
             @Override
             public void onAdClosed() {
 
-                if (adCount >=1){
+                if (adCount >= 1) {
 
                     ClickControl clickControl = new ClickControl(ClickActivity.this);
                     clickControl.setStoreScore(100);
                     SignOut();
 
 
-                }else {
+                } else {
                     mInterstitialAd.loadAd(new AdRequest.Builder().build());
                     Toast.makeText(ClickActivity.this, " Try Again.. Ok! ", Toast.LENGTH_SHORT).show();
 
@@ -167,7 +159,6 @@ public class ClickActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError error) {
-                // Failed to read value
 
             }
         });
@@ -185,7 +176,6 @@ public class ClickActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError error) {
-                // Failed to read value
 
             }
         });
@@ -208,9 +198,9 @@ public class ClickActivity extends AppCompatActivity {
     }
 
     private void startTimer() {
-        if (timeRunning){
+        if (timeRunning) {
             stopTime();
-        }else {
+        } else {
             startTime();
         }
 
@@ -218,10 +208,10 @@ public class ClickActivity extends AppCompatActivity {
 
 
     private void startTime() {
-        countDownTimer = new CountDownTimer(timeLeft,1000) {
+        countDownTimer = new CountDownTimer(timeLeft, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                timeLeft =millisUntilFinished;
+                timeLeft = millisUntilFinished;
                 updateTimer();
 
             }
@@ -229,41 +219,41 @@ public class ClickActivity extends AppCompatActivity {
             @Override
             public void onFinish() {
 
-                int newBalance= oldBalance+2;
+                int newBalance = oldBalance + 3;
                 myRef.child("UserMainPoints").child(uId).setValue(String.valueOf(newBalance)).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()){
+                        if (task.isSuccessful()) {
 
                             myRef.child("WaitingTime").child(uId).setValue(String.valueOf(100)).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
 
-                                    if (task.isSuccessful()){
+                                    if (task.isSuccessful()) {
 
-                                        int newClick= oldClicks+1;
+                                        int newClick = oldClicks + 1;
 
                                         myRef.child("UserClickList").child(uId).setValue(String.valueOf(newClick))
                                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
 
-                                                if (task.isSuccessful()){
+                                                        if (task.isSuccessful()) {
 
-                                                    adCount++;
-                                                }else {
-                                                    adCount++;
+                                                            adCount++;
+                                                        } else {
+                                                            adCount++;
 
-                                                }
+                                                        }
 
-                                            }
-                                        }).addOnFailureListener(new OnFailureListener() {
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
                                             @Override
                                             public void onFailure(@NonNull Exception e) {
 
                                             }
                                         });
-                                    }else {
+                                    } else {
                                         adCount++;
                                     }
 
@@ -276,7 +266,7 @@ public class ClickActivity extends AppCompatActivity {
                             });
 
 
-                        }else {
+                        } else {
 
                             adCount++;
                         }
@@ -289,24 +279,20 @@ public class ClickActivity extends AppCompatActivity {
                 });
 
 
-
-
             }
         }.start();
         timeRunning = true;
-        //startBtn.setText("Pause");
-
     }
 
     private void updateTimer() {
 
-        int minutes = (int) (timeLeft /60000);
-        int seconds = (int) (timeLeft % 60000 /1000);
-        timeText = ""+minutes;
+        int minutes = (int) (timeLeft / 60000);
+        int seconds = (int) (timeLeft % 60000 / 1000);
+        timeText = "" + minutes;
         timeText += ":";
-        if (seconds <10)timeText += "0";
-        timeText +=seconds;
-        Toast.makeText(this, "Wait: "+timeText, Toast.LENGTH_SHORT).show();
+        if (seconds < 10) timeText += "0";
+        timeText += seconds;
+        Toast.makeText(this, "Wait: " + timeText, Toast.LENGTH_SHORT).show();
 
     }
 

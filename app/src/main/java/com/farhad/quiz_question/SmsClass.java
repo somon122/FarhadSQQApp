@@ -3,7 +3,7 @@ package com.farhad.quiz_question;
 public class SmsClass {
 
 
-    public String mQuestions [] = {
+    public String mQuestions[] = {
 
             "কথা বলার জন্য.\n" +
                     "যে শক্তি ও যোগ্যতার প্রয়োজন.\n" +
@@ -149,7 +149,7 @@ public class SmsClass {
                     " This is not my only immovable job array\n" +
                     " I do not think anything is a happy rescue.",
 
-             " কাগজের নৌকা অনেক সুন্দর হয়,কিন্তু পানিতে  ডুবে যায়...তেমনি 'সপ্ন, কল্পনা ' অনেকআবেগ প্রবন হয়,কিন্তু বাস্তবতার সামনে সেটাবিলীন হয়ে যায়..Paper boats are beautiful, but they sink in the water ... Like 'dreams, fantasies' many emotions are weakened, but they are set before reality.",
+            " কাগজের নৌকা অনেক সুন্দর হয়,কিন্তু পানিতে  ডুবে যায়...তেমনি 'সপ্ন, কল্পনা ' অনেকআবেগ প্রবন হয়,কিন্তু বাস্তবতার সামনে সেটাবিলীন হয়ে যায়..Paper boats are beautiful, but they sink in the water ... Like 'dreams, fantasies' many emotions are weakened, but they are set before reality.",
 
             "নিশ্চয়ই একজন লোকের কোন কাজ ছাড়া অযথা বসে থাকা দেখতে আমি ঘৃণা করি, যখন সে দুনিয়ার জীবনের জন্য কোন কাজ করছে না, এমনকি আখিরাতের জন্যও কিছু করছে না।, নামাজ  শেষ কাজে চলে যাওয়াটা উত্তম\n" +
                     "\n\nSurely I hate to see a man sitting idly by without doing anything, when he is not doing anything for the life of the world, nor is he doing anything for the Hereafter.",
@@ -239,17 +239,14 @@ public class SmsClass {
                     " There is tears, but no tears come in my eyes, because I am a boy."
 
 
+    };
 
 
-
-};
-
-
-    public String getQuestion (int a) {
+    public String getQuestion(int a) {
 
 
-    String question = mQuestions[a] ;
-    return question;
+        String question = mQuestions[a];
+        return question;
 
 
     }

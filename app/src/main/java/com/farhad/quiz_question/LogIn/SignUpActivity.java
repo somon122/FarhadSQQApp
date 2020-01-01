@@ -74,10 +74,7 @@ public class SignUpActivity extends AppCompatActivity {
     String pushId;
 
     UserDeviceIdClass deviceIdClass;
-    List<UserDeviceIdClass>deviceIdList;
-
-
-
+    List<UserDeviceIdClass> deviceIdList;
 
 
     @Override
@@ -115,7 +112,7 @@ public class SignUpActivity extends AppCompatActivity {
             public void onClick(View v) {
 
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
                     if (ContextCompat.checkSelfPermission(SignUpActivity.this,
                             Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
@@ -130,8 +127,7 @@ public class SignUpActivity extends AppCompatActivity {
                     }
 
 
-
-                }else {
+                } else {
 
                     TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
                     String deviceId = telephonyManager.getDeviceId();
@@ -159,8 +155,8 @@ public class SignUpActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 CropImage.activity()
-                        .setMinCropResultSize(1080,1920)
-                        .setAspectRatio(1,1)
+                        .setMinCropResultSize(1080, 1920)
+                        .setAspectRatio(1, 1)
                         .setAutoZoomEnabled(true)
                         .setGuidelines(CropImageView.Guidelines.ON)
                         .start(SignUpActivity.this);
@@ -174,26 +170,23 @@ public class SignUpActivity extends AppCompatActivity {
     private void checkExistsAccount(String deviceId) {
 
 
-        if (deviceIdClass.getmDeviceId().contains(deviceId)){
+        if (deviceIdClass.getmDeviceId().contains(deviceId)) {
 
             Toast.makeText(this, "You are already Registered", Toast.LENGTH_SHORT).show();
 
-        }else {
+        } else {
 
-            if (deviceId != null){
+            if (deviceId != null) {
 
                 Toast.makeText(this, "You are able Registered", Toast.LENGTH_SHORT).show();
                 isRegister(deviceId);
 
-            }else {
+            } else {
                 Toast.makeText(this, "Please try again", Toast.LENGTH_SHORT).show();
             }
 
 
         }
-
-
-
 
 
     }
@@ -204,11 +197,11 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                if (dataSnapshot.exists()){
+                if (dataSnapshot.exists()) {
 
                     deviceIdList.clear();
 
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
 
                         deviceIdClass = snapshot.getValue(UserDeviceIdClass.class);
 
@@ -228,236 +221,183 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
-    private void isRegister(final String uploadDeviceId)
-        {
-            String email = emailEditText.getText().toString();
-            String password = passwordEditText.getText().toString();
-            String confirmPassword = confirmPasswordET.getText().toString();
-
-            final String userName = userNameET.getText().toString();
-
-            if (TextUtils.isEmpty(email)){
-                emailEditText.setError("Please Enter Valid Email Address");
-            }
-            else if (TextUtils.isEmpty(password)){
-                passwordEditText.setError("Please Enter Valid Password");
-            }
-            else if (TextUtils.isEmpty(confirmPassword)){
-                confirmPasswordET.setError("Please enter matching Password by above");
-            }
-            else if (TextUtils.isEmpty(userName)){
-                userNameET.setError("Please enter Name");
-            }
-            else {
-
-                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
-                if (firebaseUser == null){
-
-                    if (!password.equals(confirmPassword))
-                    {
-                        Toast.makeText(SignUpActivity.this, "Confirm Password could not match ", Toast.LENGTH_SHORT).show();
-
-                    }else {
-
-
-                        if (imageUri != null && uploadDeviceId != null) {
-
-                            dialog.show();
-                            dialog.setMessage("Register is progressing ...");
-
-                            auth.createUserWithEmailAndPassword(email, confirmPassword)
-                                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<AuthResult> task) {
-                                            if (task.isSuccessful()) {
-
-                                                 user = auth.getCurrentUser();
-
-
-                                                File newImageFile = new File(imageUri.getPath());
-
-
-                                                try {
-                                                    compressedImageFile = new Compressor(SignUpActivity.this)
-                                                            .setMaxWidth(720)
-                                                            .setMaxHeight(570)
-                                                            .setQuality(75)
-                                                            .compressToBitmap(newImageFile);
-
-                                                } catch (IOException e) {
-                                                    e.printStackTrace();
-                                                }
-
-                                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                                compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                                                byte[] newImageData = baos.toByteArray();
-
-                                                final StorageReference imageName = mStorageRef.child(imageUri.getLastPathSegment()).child(".jpg");
-
-
-                                                imageName.putBytes(newImageData)
-                                                        .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                                                            @Override
-                                                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-
-                                                                if (task.isSuccessful()){
-
-                                                                    imageName.getDownloadUrl()
-                                                                            .addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                                                                @Override
-                                                                                public void onSuccess(Uri uri) {
-
-
-                                                                                    UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
-                                                                                            .setDisplayName(userName)
-                                                                                            .setPhotoUri(uri)
-                                                                                            .build();
-                                                                                    user.updateProfile(profileChangeRequest).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                        @Override
-                                                                                        public void onComplete(@NonNull Task<Void> task) {
-
-
-                                                                                            if (task.isSuccessful()){
-
-                                                                                                deviceIdClass = new UserDeviceIdClass(uploadDeviceId);
-
-                                                                                               myRef.child("UniqueDeviceId").child(pushId).setValue(deviceIdClass)
-                                                                                                       .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                                   @Override
-                                                                                                   public void onComplete(@NonNull Task<Void> task) {
-
-
-                                                                                                       if (task.isSuccessful()){
-
-                                                                                                           dialog.dismiss();
-                                                                                                           auth.signOut();
-                                                                                                           Intent intent = new Intent(SignUpActivity.this,LogInActivity.class);
-                                                                                                           intent.putExtra("alert","alert");
-                                                                                                           startActivity(intent);
-                                                                                                           finish();
-
-                                                                                                       }else {
-                                                                                                           dialog.dismiss();
-                                                                                                           Toast.makeText(SignUpActivity.this, "Try again", Toast.LENGTH_SHORT).show();
-
-                                                                                                       }
-
-
-
-                                                                                                   }
-                                                                                               }).addOnFailureListener(new OnFailureListener() {
-                                                                                                   @Override
-                                                                                                   public void onFailure(@NonNull Exception e) {
-
-                                                                                                       dialog.dismiss();
-                                                                                                       Toast.makeText(SignUpActivity.this, "Try again", Toast.LENGTH_SHORT).show();
-
-                                                                                                   }
-                                                                                               });
-
-                                                                                            }else {
-                                                                                                dialog.dismiss();
-                                                                                                Toast.makeText(SignUpActivity.this, "Try again", Toast.LENGTH_SHORT).show();
-                                                                                            }
-
-
-
-                                                                                        }
-                                                                                    });
-
-
-
-                                                                                }
-                                                                            }).addOnFailureListener(new OnFailureListener() {
-                                                                        @Override
-                                                                        public void onFailure(@NonNull Exception exception) {
-
-                                                                            dialog.dismiss();
-
-                                                                        }
-                                                                    });
-
-
-
-
-
-                                                                }else {
-
-                                                                    dialog.dismiss();
-                                                                    Toast.makeText(SignUpActivity.this, "Upload is Field", Toast.LENGTH_SHORT).show();
-                                                                }
-
-
-
-                                                            }
-                                                        });
-
-
-
-                                            } else {
-                                                dialog.dismiss();
-                                                Toast.makeText(SignUpActivity.this, " check Email, Password and net Connection", Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                    });
-
-                        }else {
-
-                            Toast.makeText(this, "Please select Image ", Toast.LENGTH_SHORT).show();
-                        }
-
-                    }
-
-                }else {
-                    dialog.dismiss();
-                    Toast.makeText(SignUpActivity.this, "You have already Registered", Toast.LENGTH_SHORT).show();
-                }
-
-
-
-            }
-
-
-
-        }
-
-        private void sentEmailVerification(){
+    private void isRegister(final String uploadDeviceId) {
+        String email = emailEditText.getText().toString();
+        String password = passwordEditText.getText().toString();
+        String confirmPassword = confirmPasswordET.getText().toString();
+
+        final String userName = userNameET.getText().toString();
+
+        if (TextUtils.isEmpty(email)) {
+            emailEditText.setError("Please Enter Valid Email Address");
+        } else if (TextUtils.isEmpty(password)) {
+            passwordEditText.setError("Please Enter Valid Password");
+        } else if (TextUtils.isEmpty(confirmPassword)) {
+            confirmPasswordET.setError("Please enter matching Password by above");
+        } else if (TextUtils.isEmpty(userName)) {
+            userNameET.setError("Please enter Name");
+        } else {
 
             FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-            if (firebaseUser != null){
+            if (firebaseUser == null) {
 
-                firebaseUser.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
+                if (!password.equals(confirmPassword)) {
+                    Toast.makeText(SignUpActivity.this, "Confirm Password could not match ", Toast.LENGTH_SHORT).show();
 
-                        if (task.isSuccessful()){
-                            dialog.dismiss();
-                            Toast.makeText(SignUpActivity.this, "SignUp is Successfully", Toast.LENGTH_SHORT).show();
-                            auth.signOut();
-                            Intent intent = new Intent(SignUpActivity.this,LogInActivity.class);
-                            intent.putExtra("alert","alert");
-                            startActivity(intent);
-                            finish();
+                } else {
 
-                        }else {
-                            dialog.dismiss();
-                            Toast.makeText(SignUpActivity.this, "hello", Toast.LENGTH_SHORT).show();
-                        }
 
+                    if (imageUri != null && uploadDeviceId != null) {
+
+                        dialog.show();
+                        dialog.setMessage("Register is progressing ...");
+
+                        auth.createUserWithEmailAndPassword(email, confirmPassword)
+                                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                        if (task.isSuccessful()) {
+
+                                            user = auth.getCurrentUser();
+
+
+                                            File newImageFile = new File(imageUri.getPath());
+
+
+                                            try {
+                                                compressedImageFile = new Compressor(SignUpActivity.this)
+                                                        .setMaxWidth(720)
+                                                        .setMaxHeight(570)
+                                                        .setQuality(75)
+                                                        .compressToBitmap(newImageFile);
+
+                                            } catch (IOException e) {
+                                                e.printStackTrace();
+                                            }
+
+                                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                            compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                                            byte[] newImageData = baos.toByteArray();
+
+                                            final StorageReference imageName = mStorageRef.child(imageUri.getLastPathSegment()).child(".jpg");
+
+
+                                            imageName.putBytes(newImageData)
+                                                    .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                                                            if (task.isSuccessful()) {
+
+                                                                imageName.getDownloadUrl()
+                                                                        .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                                            @Override
+                                                                            public void onSuccess(Uri uri) {
+
+
+                                                                                UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
+                                                                                        .setDisplayName(userName)
+                                                                                        .setPhotoUri(uri)
+                                                                                        .build();
+                                                                                user.updateProfile(profileChangeRequest).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                    @Override
+                                                                                    public void onComplete(@NonNull Task<Void> task) {
+
+
+                                                                                        if (task.isSuccessful()) {
+
+                                                                                            deviceIdClass = new UserDeviceIdClass(uploadDeviceId);
+
+                                                                                            myRef.child("UniqueDeviceId").child(pushId).setValue(deviceIdClass)
+                                                                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                                        @Override
+                                                                                                        public void onComplete(@NonNull Task<Void> task) {
+
+
+                                                                                                            if (task.isSuccessful()) {
+
+                                                                                                                dialog.dismiss();
+                                                                                                                auth.signOut();
+                                                                                                                Intent intent = new Intent(SignUpActivity.this, LogInActivity.class);
+                                                                                                                intent.putExtra("alert", "alert");
+                                                                                                                startActivity(intent);
+                                                                                                                finish();
+
+                                                                                                            } else {
+                                                                                                                dialog.dismiss();
+                                                                                                                Toast.makeText(SignUpActivity.this, "Try again", Toast.LENGTH_SHORT).show();
+
+                                                                                                            }
+
+
+                                                                                                        }
+                                                                                                    }).addOnFailureListener(new OnFailureListener() {
+                                                                                                @Override
+                                                                                                public void onFailure(@NonNull Exception e) {
+
+                                                                                                    dialog.dismiss();
+                                                                                                    Toast.makeText(SignUpActivity.this, "Try again", Toast.LENGTH_SHORT).show();
+
+                                                                                                }
+                                                                                            });
+
+                                                                                        } else {
+                                                                                            dialog.dismiss();
+                                                                                            Toast.makeText(SignUpActivity.this, "Try again", Toast.LENGTH_SHORT).show();
+                                                                                        }
+
+
+                                                                                    }
+                                                                                });
+
+
+                                                                            }
+                                                                        }).addOnFailureListener(new OnFailureListener() {
+                                                                    @Override
+                                                                    public void onFailure(@NonNull Exception exception) {
+
+                                                                        dialog.dismiss();
+
+                                                                    }
+                                                                });
+
+
+                                                            } else {
+
+                                                                dialog.dismiss();
+                                                                Toast.makeText(SignUpActivity.this, "Upload is Field", Toast.LENGTH_SHORT).show();
+                                                            }
+
+
+                                                        }
+                                                    });
+
+
+                                        } else {
+                                            dialog.dismiss();
+                                            Toast.makeText(SignUpActivity.this, " check Email, Password and net Connection", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+
+                    } else {
+
+                        Toast.makeText(this, "Please select Image ", Toast.LENGTH_SHORT).show();
                     }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        dialog.dismiss();
-                        Toast.makeText(SignUpActivity.this, "Connection is problem", Toast.LENGTH_SHORT).show();
-                    }
-                });
+
+                }
+
+            } else {
+                dialog.dismiss();
+                Toast.makeText(SignUpActivity.this, "You have already Registered", Toast.LENGTH_SHORT).show();
             }
 
 
         }
+
+
+    }
 
 
     @Override
@@ -472,7 +412,7 @@ public class SignUpActivity extends AppCompatActivity {
                 imageView.setImageURI(imageUri);
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
-                Toast.makeText(this, "Problem "+error, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Problem " + error, Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -489,7 +429,7 @@ public class SignUpActivity extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             ActivityCompat.requestPermissions(SignUpActivity.this,
-                                    new String[] {Manifest.permission.READ_PHONE_STATE}, PHONE_PERMISSION_CODE);
+                                    new String[]{Manifest.permission.READ_PHONE_STATE}, PHONE_PERMISSION_CODE);
                         }
                     })
                     .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
@@ -502,13 +442,13 @@ public class SignUpActivity extends AppCompatActivity {
 
         } else {
             ActivityCompat.requestPermissions(this,
-                    new String[] {Manifest.permission.READ_PHONE_STATE}, PHONE_PERMISSION_CODE);
+                    new String[]{Manifest.permission.READ_PHONE_STATE}, PHONE_PERMISSION_CODE);
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == PHONE_PERMISSION_CODE)  {
+        if (requestCode == PHONE_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 Toast.makeText(this, "Permission granted and you can access this app", Toast.LENGTH_SHORT).show();

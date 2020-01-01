@@ -11,6 +11,7 @@ import android.os.CountDownTimer;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
@@ -35,6 +36,7 @@ import com.farhad.quiz_question.LogIn.LogInActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,10 +50,8 @@ public class MainActivity extends AppCompatActivity {
 
     DrawerLayout drawer;
     NavigationView navigationView;
-
-
-    TextView  userName,homeMainPointTV,waitingTimerShow;
-    CircleImageView circleImageShowId, quiz,help,questionImage, smsImage;
+    TextView userName, homeMainPointTV, waitingTimerShow;
+    CircleImageView circleImageShowId, quiz, help, questionImage, smsImage;
 
     FirebaseAuth auth;
     FirebaseUser user;
@@ -60,8 +60,6 @@ public class MainActivity extends AppCompatActivity {
     String uId;
 
     SharedPreferences.Editor editor;
-
-    //private static final long START_TIME_IN_MILLIS = 40000;
 
     private static final long START_TIME_IN_MILLIS = 3599000;
 
@@ -87,14 +85,14 @@ public class MainActivity extends AppCompatActivity {
         drawer = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
 
-        quiz =findViewById(R.id.quizButton_id);
-        questionImage =findViewById(R.id.questionImage_id);
+        quiz = findViewById(R.id.quizButton_id);
+        questionImage = findViewById(R.id.questionImage_id);
 
-        help =findViewById(R.id.help_id);
-        smsImage =findViewById(R.id.smsButton_id);
+        help = findViewById(R.id.help_id);
+        smsImage = findViewById(R.id.smsButton_id);
 
         auth = FirebaseAuth.getInstance();
-        user= auth.getCurrentUser();
+        user = auth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference("Users");
 
@@ -107,9 +105,7 @@ public class MainActivity extends AppCompatActivity {
         waitingControl = new WaitingControl(this);
 
 
-
-
-        if (user != null){
+        if (user != null) {
             uId = user.getUid();
             notificationMethod();
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -125,12 +121,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
 
-                    startActivity(new Intent(MainActivity.this, QuizActivity.class));
+                startActivity(new Intent(MainActivity.this, QuizActivity.class));
 
 
             }
         });
-
 
 
         questionImage.setOnClickListener(new View.OnClickListener() {
@@ -146,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                    startActivity(new Intent(MainActivity.this, SmsActivity.class));
+                startActivity(new Intent(MainActivity.this, SmsActivity.class));
 
 
             }
@@ -159,15 +154,13 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/joinchat/JT1GYRXeK3aW271tYAboQQ")));
 
-                }catch (ActivityNotFoundException e) {
+                } catch (ActivityNotFoundException e) {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/joinchat/JT1GYRXeK3aW271tYAboQQ")));
                 }
 
 
             }
         });
-
-
 
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
@@ -177,63 +170,62 @@ public class MainActivity extends AppCompatActivity {
 
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
-        int id = menuItem.getItemId();
+                int id = menuItem.getItemId();
 
-        if (id == R.id.nev_home){
+                if (id == R.id.nev_home) {
 
-            startActivity(new Intent(MainActivity.this, MainActivity.class));
+                    startActivity(new Intent(MainActivity.this, MainActivity.class));
 
-        }
-        if (id == R.id.nev_aboutMe_id){
+                }
+                if (id == R.id.nev_aboutMe_id) {
 
-            startActivity(new Intent(MainActivity.this, AboutMeActivity.class));
+                    startActivity(new Intent(MainActivity.this, AboutMeActivity.class));
 
-        }
-        if (id == R.id.nev_PrivacyPolicy){
+                }
+                if (id == R.id.nev_PrivacyPolicy) {
 
-            try {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://supernicetitle.blogspot.com/2019/12/education-pass.html?m=1")));
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://supernicetitle.blogspot.com/2019/12/education-pass.html?m=1")));
 
-            }catch (ActivityNotFoundException e) {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://supernicetitle.blogspot.com/2019/12/education-pass.html?m=1")));
-            }
+                    } catch (ActivityNotFoundException e) {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://supernicetitle.blogspot.com/2019/12/education-pass.html?m=1")));
+                    }
 
-        }
+                }
 
-        if (id == R.id.nav_share){
+                if (id == R.id.nav_share) {
 
-            shareApp();
+                    shareApp();
 
-        }
-        if (id == R.id.nav_rate_us){
+                }
+                if (id == R.id.nav_rate_us) {
 
-            try {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + getPackageName())));
-            }catch (ActivityNotFoundException e){
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + getPackageName())));
+                    } catch (ActivityNotFoundException e) {
 
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + getPackageName())));
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + getPackageName())));
 
-            }
-
-
-        }
+                    }
 
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+                }
 
 
-        return false;
+                DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+
+
+                return false;
 
             }
         });
 
 
     }
-
 
 
     private void notificationMethod() {
@@ -252,35 +244,15 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError error) {
-                // Failed to read value
 
             }
         });
 
-       /* myRef.child("WaitingTime").child(uId).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    String value = dataSnapshot.getValue(String.class);
-                    waitingScore = Integer.parseInt(value);
-                }else {
-
-                }
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-
-            }
-        });
-*/
 
     }
 
 
-        private void userProfile (){
+    private void userProfile() {
 
         View userProfileUD = navigationView.getHeaderView(0);
         TextView userName = userProfileUD.findViewById(R.id.profileUserName_id);
@@ -298,17 +270,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
     private void shareApp() {
 
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
-        String shareBody = "App link : "+"https://play.google.com/store/apps/details?id="+getPackageName();
+        String shareBody = "App link : " + "https://play.google.com/store/apps/details?id=" + getPackageName();
         String shareSub = "Android App";
-        intent.putExtra(Intent.EXTRA_SUBJECT,shareSub);
-        intent.putExtra(Intent.EXTRA_TEXT,shareBody);
-        startActivity(Intent.createChooser(intent,"Quiz_Question_app"));
+        intent.putExtra(Intent.EXTRA_SUBJECT, shareSub);
+        intent.putExtra(Intent.EXTRA_TEXT, shareBody);
+        startActivity(Intent.createChooser(intent, "Quiz_Question_app"));
 
     }
 
@@ -325,9 +295,9 @@ public class MainActivity extends AppCompatActivity {
 
         int id = item.getItemId();
 
-        if (id == R.id.action_logOut){
+        if (id == R.id.action_logOut) {
 
-          alert();
+            alert();
         }
 
         return super.onOptionsItemSelected(item);
@@ -345,7 +315,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void alert(){
+    private void alert() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -357,9 +327,8 @@ public class MainActivity extends AppCompatActivity {
 
                         FirebaseAuth.getInstance().signOut();
                         Toast.makeText(MainActivity.this, "Successfully LogOut ", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(getApplicationContext(),LogInActivity.class));
+                        startActivity(new Intent(getApplicationContext(), LogInActivity.class));
                         finish();
-
 
 
                     }
@@ -371,7 +340,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Thank You for Staying...", Toast.LENGTH_SHORT).show();
 
 
-
             }
         });
 
@@ -381,47 +349,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
- private void TimeAleart(){
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        builder.setMessage("You can able to work After complete Time")
-               .setTitle("Waiting Time Alert !")
-                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        if (waitingControl.getScore()==10){
-                            finishAffinity();
-                        }else {
-                            dialog.dismiss();
-                        }
-
-
-                    }
-                }).setNeutralButton("Watch Time", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-                waitingTimerShow.setVisibility(View.VISIBLE);
-            }
-        });
-
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-
-
-    }
 
     @Override
     public void onStart() {
         super.onStart();
 
-        if (FirebaseAuth.getInstance().getCurrentUser() == null){
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             startActivity(new Intent(MainActivity.this, LogInActivity.class));
-        }else {
+        } else {
             userProfile();
 
             SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
@@ -444,12 +379,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-           Bundle bundle = getIntent().getExtras();
-            if (bundle != null){
+            Bundle bundle = getIntent().getExtras();
+            if (bundle != null) {
                 waitingControl.setStoreScore(10);
             }
-
-
 
 
         }
@@ -501,13 +434,13 @@ public class MainActivity extends AppCompatActivity {
         myRef.child("WaitingTime").child(uId).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()){
+                if (task.isSuccessful()) {
 
-                    waitingScore=0;
+                    waitingScore = 0;
                     Toast.makeText(MainActivity.this, "You are able to work", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(MainActivity.this, MainActivity.class));
 
-                }else {
+                } else {
                     Toast.makeText(MainActivity.this, "Please Check your net connection", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -520,28 +453,26 @@ public class MainActivity extends AppCompatActivity {
         updateCountDownText();
 
 
-
     }
 
     private void updateCountDownText() {
-        int hour = (int) ((mTimeLeftInMillis/1000) /60) /60;
+        int hour = (int) ((mTimeLeftInMillis / 1000) / 60) / 60;
         int minutes = (int) (mTimeLeftInMillis / 1000) / 60;
         int seconds = (int) (mTimeLeftInMillis / 1000) % 60;
 
-        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d",hour, minutes, seconds);
+        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hour, minutes, seconds);
 
 
-
-        if (waitingScore >=1){
+        if (waitingScore >= 1) {
 
             quiz.setEnabled(false);
             questionImage.setEnabled(false);
             smsImage.setEnabled(false);
             waitingTimerShow.setVisibility(View.VISIBLE);
-            waitingTimerShow.setText("Waiting...\n"+timeLeftFormatted);
+            waitingTimerShow.setText("Waiting...\n" + timeLeftFormatted);
 
 
-        }else {
+        } else {
             waitingControl.Delete();
             waitingTimerShow.setVisibility(View.GONE);
             quiz.setEnabled(true);
@@ -550,12 +481,9 @@ public class MainActivity extends AppCompatActivity {
             timeValueDelete();
 
 
-
         }
 
     }
-
-
 
 
 }
