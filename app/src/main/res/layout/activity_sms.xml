@@ -118,11 +118,23 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:textColor="#fff"
+        android:background="#0582E6"
         android:textSize="30sp"
         android:text="00:00:00"
         android:gravity="center"
 
         />
+
+    <TextView
+        android:id="@+id/smsWaiting2_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="00:00:00"
+        android:textColor="#FF5722"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rewardToolBar" />
 
 
 

@@ -126,7 +126,7 @@ public class QuestionActivity extends AppCompatActivity {
         r = new Random();
 
         updateQuestion(r.nextInt(mQuestionsLenght));
-        scoreTV.setText(questionControlClass.getScore() + "/" + "60");
+        scoreTV.setText(questionControlClass.getScore() + "/" + "40");
 
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
@@ -149,13 +149,11 @@ public class QuestionActivity extends AppCompatActivity {
                     if (mInterstitialAd.isLoaded()) {
                         mInterstitialAd.show();
 
-                    } else {
-                        score = 1;
-                        checkAnswer(score, mAnswer);
+                    }else {
+                        checkAnswer(mAnswer);
                     }
                 } else {
-                    score = 1;
-                    checkAnswer(score, mAnswer);
+                    checkAnswer(mAnswer);
                 }
 
 
@@ -237,12 +235,9 @@ public class QuestionActivity extends AppCompatActivity {
             @Override
             public void onAdClosed() {
 
-                if (waitingControl.getScore() > 0) {
-                    startActivity(new Intent(QuestionActivity.this, QuestionActivity.class));
-                } else {
-                    startActivity(new Intent(QuestionActivity.this, QuestionActivity.class));
-
-                }
+                int mScore=1;
+                int value = questionControlClass.getScore() + mScore;
+                questionControlClass.setStoreScore(value);
 
 
             }
@@ -259,7 +254,7 @@ public class QuestionActivity extends AppCompatActivity {
 
     }
 
-    private void checkAnswer(final int mScore, String answer) {
+    private void checkAnswer(String answer) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(QuestionActivity.this);
 
@@ -273,7 +268,7 @@ public class QuestionActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
 
-                        if (questionControlClass.getScore() >= 59) {
+                        if (questionControlClass.getScore() >= 39) {
 
                             questionControlClass.Delete();
                             startActivity(new Intent(QuestionActivity.this, ClickActivity.class));
@@ -283,10 +278,8 @@ public class QuestionActivity extends AppCompatActivity {
                         } else {
 
                             adsShowScore = adsShowScore + 1;
-                            int value = questionControlClass.getScore() + mScore;
-                            questionControlClass.setStoreScore(value);
                             updateQuestion(r.nextInt(mQuestionsLenght));
-                            scoreTV.setText(questionControlClass.getScore() + "/" + "60");
+                            scoreTV.setText(questionControlClass.getScore() + "/" + "40");
 
                             if (adsShowScore >= 1) {
                                 mInterstitialAd.loadAd(new AdRequest.Builder().build());

@@ -89,6 +89,7 @@ public class SmsActivity extends AppCompatActivity {
 
     private static final long START_TIME_IN_MILLIS = 3599000;
     private TextView waitingTV;
+    private TextView waitingTV2;
     private CountDownTimer mCountDownTimer;
     private boolean mTimerRunning;
     private long mTimeLeftInMillis;
@@ -119,7 +120,9 @@ public class SmsActivity extends AppCompatActivity {
         smsCounterTV = findViewById(R.id.SmsCounter_id);
         smsCounterTV = findViewById(R.id.SmsCounter_id);
         waitingTV = findViewById(R.id.smsWaiting_id);
+        waitingTV2 = findViewById(R.id.smsWaiting2_id);
         waitingTV.setVisibility(View.GONE);
+        waitingTV2.setVisibility(View.GONE);
 
         dialog = new ProgressDialog(this);
         waitingControl = new WaitingControl(this);
@@ -134,7 +137,7 @@ public class SmsActivity extends AppCompatActivity {
         r = new Random();
 
         updateQuestion(r.nextInt(mQuestionsLenght));
-        smsCounterTV.setText(smsControl.getScore() + "/" + "60");
+        smsCounterTV.setText(smsControl.getScore() + "/" + "40");
 
 
         if (user != null) {
@@ -155,17 +158,16 @@ public class SmsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                score = 1;
-                int add = smsControl.getScore() + score;
-                smsControl.setStoreScore(add);
+
                 adsShowScore = adsShowScore + 1;
                 updateQuestion(r.nextInt(mQuestionsLenght));
-                smsCounterTV.setText(smsControl.getScore() + "/" + "60");
+                smsCounterTV.setText(smsControl.getScore() + "/" + "40");
 
-                waitingTV.setVisibility(View.VISIBLE);
+                waitingTV2.setVisibility(View.VISIBLE);
+                smsNextButton.setVisibility(View.GONE);
                 startTimer2();
 
-                if (smsControl.getScore() >= 59) {
+                if (smsControl.getScore() >= 39) {
                     smsControl.Delete();
                     startActivity(new Intent(SmsActivity.this, SmsActivity.class));
                     finish();
@@ -264,11 +266,11 @@ public class SmsActivity extends AppCompatActivity {
             @Override
             public void onAdClosed() {
 
-                if (waitingControl.getScore() > 0) {
-                    startActivity(new Intent(SmsActivity.this, SmsActivity.class));
-                } else {
-                    startActivity(new Intent(SmsActivity.this, SmsActivity.class));
-                }
+                score = 1;
+                int add = smsControl.getScore() + score;
+                smsControl.setStoreScore(add);
+                startActivity(new Intent(SmsActivity.this, SmsActivity.class));
+
 
 
             }
@@ -436,7 +438,6 @@ public class SmsActivity extends AppCompatActivity {
 
     private void startTimer2() {
         mEndTime2 = System.currentTimeMillis() + mTimeLeftInMillis2;
-
         mCountDownTimer2 = new CountDownTimer(mTimeLeftInMillis2, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -447,7 +448,8 @@ public class SmsActivity extends AppCompatActivity {
             @Override
             public void onFinish() {
                 mTimerRunning2 = false;
-                waitingTV.setVisibility(View.GONE);
+                waitingTV2.setVisibility(View.GONE);
+                smsNextButton.setVisibility(View.VISIBLE);
                 resetTimer2();
 
             }
@@ -465,13 +467,10 @@ public class SmsActivity extends AppCompatActivity {
 
 
     private void updateCountDownText2() {
-        int hour = (int) ((mTimeLeftInMillis2 / 1000) / 60) / 60;
-        int minutes = (int) (mTimeLeftInMillis2 / 1000) / 60;
+
         int seconds = (int) (mTimeLeftInMillis2 / 1000) % 60;
-
-        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hour, minutes, seconds);
-
-        waitingTV.setText(timeLeftFormatted);
+        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d", seconds);
+        waitingTV2.setText("Please Wait : "+timeLeftFormatted);
 
 
     }

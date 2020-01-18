@@ -132,7 +132,7 @@ public class QuizActivity extends AppCompatActivity {
 
 
         updateQuestion(r.nextInt(mQuestionsLenght));
-        counterTV.setText(quizControlClass.getScore() + "/" + "60");
+        counterTV.setText(quizControlClass.getScore() + "/" + "40");
 
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
@@ -223,11 +223,8 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onAdClosed() {
 
-                if (waitingControl.getScore() > 0) {
-                    startActivity(new Intent(QuizActivity.this, QuizActivity.class));
-                } else {
-                    startActivity(new Intent(QuizActivity.this, QuizActivity.class));
-                }
+                int score=1;
+                checkAnswer(score);
 
             }
         });
@@ -259,16 +256,15 @@ public class QuizActivity extends AppCompatActivity {
 
 
                             } else {
-                                score = 1;
+                                updateQuestion(r.nextInt(mQuestionsLenght));
                                 radioGroup.clearCheck();
                                 play();
-                                checkAnswer(score);
+
                             }
                         } else {
-                            score = 1;
+                            updateQuestion(r.nextInt(mQuestionsLenght));
                             radioGroup.clearCheck();
                             play();
-                            checkAnswer(score);
                         }
 
                     } else {
@@ -276,7 +272,7 @@ public class QuizActivity extends AppCompatActivity {
                         radioGroup.clearCheck();
                         playWrong();
                         updateQuestion(r.nextInt(mQuestionsLenght));
-                        counterTV.setText(quizControlClass.getScore() + "/" + "60");
+                        counterTV.setText(quizControlClass.getScore() + "/" + "40");
 
                     }
                 }
@@ -355,7 +351,7 @@ public class QuizActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
 
-                        if (quizControlClass.getScore() >= 59) {
+                        if (quizControlClass.getScore() >= 39) {
 
                             timeIsRunning();
 
@@ -365,7 +361,7 @@ public class QuizActivity extends AppCompatActivity {
                             int value = quizControlClass.getScore() + mScore;
                             quizControlClass.setStoreScore(value);
                             updateQuestion(r.nextInt(mQuestionsLenght));
-                            counterTV.setText(quizControlClass.getScore() + "/" + "60");
+                            counterTV.setText(quizControlClass.getScore() + "/" + "40");
 
 
                             if (adsShowCount >= 1) {
