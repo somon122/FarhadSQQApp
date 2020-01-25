@@ -14,22 +14,21 @@ import android.os.CountDownTimer;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.ads.AbstractAdListener;
+import com.facebook.ads.Ad;
+import com.facebook.ads.AdError;
+import com.facebook.ads.AdSize;
+import com.facebook.ads.AdView;
+import com.facebook.ads.AudienceNetworkAds;
+import com.facebook.ads.InterstitialAd;
+import com.facebook.ads.RewardedVideoAd;
+import com.facebook.ads.RewardedVideoAdListener;
 import com.farhad.quiz_question.All_StoreClass.SmsControl;
 import com.farhad.quiz_question.All_StoreClass.WaitingControl;
-import com.farhad.quiz_question.Quiz.QuizActivity;
-import com.farhad.quiz_question.Short_Question.QuestionActivity;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.reward.RewardItem;
-import com.google.android.gms.ads.reward.RewardedVideoAd;
-import com.google.android.gms.ads.reward.RewardedVideoAdListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -40,9 +39,15 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 public class SmsActivity extends AppCompatActivity {
 
@@ -57,20 +62,24 @@ public class SmsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
-    InterstitialAd mInterstitialAd;
+    private RewardedVideoAd mRewardedVideoAd;
+    private InterstitialAd mInterstitialAd;
+    private AdView adView;
 
     ProgressDialog dialog;
     private FirebaseDatabase database;
     private DatabaseReference myRef;
+    private FirebaseFirestore mFirestore;
     private String uId;
 
     FirebaseAuth auth;
     FirebaseUser user;
-    private SmsClass smsClass = new SmsClass();
-    private int mQuestionsLenght = smsClass.mQuestions.length;
-    Random r;
-    String smsText;
+    private SmsClass smsClass;
+    private List<SmsClass>smsList;
+    private int updateData;
+    private int size;
+    private String currentData;
+
 
 
     Button smsNextButton, smsShareButton;
@@ -79,7 +88,6 @@ public class SmsActivity extends AppCompatActivity {
     int adsShowScore;
     int blockCount;
     int score;
-    private AdView mAdView;
 
     private static final long START_TIME_IN_MILLIS2 = 5000;
     private CountDownTimer mCountDownTimer2;
@@ -118,7 +126,6 @@ public class SmsActivity extends AppCompatActivity {
         smsShareButton = findViewById(R.id.shareSms_id);
         smsShowTV = findViewById(R.id.smsView_id);
         smsCounterTV = findViewById(R.id.SmsCounter_id);
-        smsCounterTV = findViewById(R.id.SmsCounter_id);
         waitingTV = findViewById(R.id.smsWaiting_id);
         waitingTV2 = findViewById(R.id.smsWaiting2_id);
         waitingTV.setVisibility(View.GONE);
@@ -132,58 +139,95 @@ public class SmsActivity extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference("Users");
+
+        mFirestore = FirebaseFirestore.getInstance();
         smsControl = new SmsControl(this);
+        smsClass = new SmsClass();
+        smsList = new ArrayList<>();
 
-        r = new Random();
 
-        updateQuestion(r.nextInt(mQuestionsLenght));
-        smsCounterTV.setText(smsControl.getScore() + "/" + "40");
+        AudienceNetworkAds.initialize(this);
+
+        adView = new AdView(this, "122258155693784_122259775693622", AdSize.BANNER_HEIGHT_50);
+        LinearLayout adContainer = findViewById(R.id.banner_container);
+        adContainer.addView(adView);
+        adView.loadAd();
+
+        mRewardedVideoAd = new RewardedVideoAd(this, "122258155693784_122260275693572");
+        mInterstitialAd = new InterstitialAd(this, "122258155693784_122258845693715");
+
+        mRewardedVideoAd.setAdListener(new RewardedVideoAdListener() {
+            @Override
+            public void onRewardedVideoCompleted() {
+                shareApp(currentData);
+                mRewardedVideoAd.loadAd();
+            }
+
+            @Override
+            public void onLoggingImpression(Ad ad) {
+
+            }
+
+            @Override
+            public void onRewardedVideoClosed() {
+                mRewardedVideoAd.loadAd();
+            }
+
+            @Override
+            public void onError(Ad ad, AdError adError) {
+
+            }
+
+            @Override
+            public void onAdLoaded(Ad ad) {
+
+            }
+
+            @Override
+            public void onAdClicked(Ad ad) {
+
+
+
+            }
+        });
+        mRewardedVideoAd.loadAd();
+
 
 
         if (user != null) {
             uId = user.getUid();
+            smsLoad();
             blockUser();
 
         }
 
-        MobileAds.initialize(this, getString(R.string.test_AppUnitId));
-        mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId(getString(R.string.sms_InterstitialAdUnit));
 
-        mAdView = findViewById(R.id.smsBanner_id);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
 
         smsNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
 
-                adsShowScore = adsShowScore + 1;
-                updateQuestion(r.nextInt(mQuestionsLenght));
-                smsCounterTV.setText(smsControl.getScore() + "/" + "40");
+                try {
+                    if (updateData < size ){
+                        if (adsShowScore >=3){
+                            if (mInterstitialAd.isAdLoaded()){
+                                mInterstitialAd.show();
 
-                waitingTV2.setVisibility(View.VISIBLE);
-                smsNextButton.setVisibility(View.GONE);
-                startTimer2();
+                            }else {
+                                nextSMS();
+                            }
 
-                if (smsControl.getScore() >= 39) {
-                    smsControl.Delete();
-                    startActivity(new Intent(SmsActivity.this, SmsActivity.class));
-                    finish();
-
-                } else {
-
-                    if (adsShowScore >= 3) {
-                        if (mInterstitialAd.isLoaded()) {
-                            mInterstitialAd.show();
+                        }else {
+                            nextSMS();
                         }
+                    }else {
+                        dataStatus();
                     }
 
-                    if (adsShowScore >= 1) {
-                        mInterstitialAd.loadAd(new AdRequest.Builder().build());
-                    }
+                }catch (Exception e){
 
+                    dataStatus();
                 }
 
 
@@ -195,30 +239,30 @@ public class SmsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                shareApp(smsText);
+                if (mRewardedVideoAd.isAdLoaded()){
+                    mRewardedVideoAd.show();
+
+                }else {
+                    shareApp(currentData);
+                }
 
             }
         });
 
-
-        mInterstitialAd.setAdListener(new AdListener() {
+        mInterstitialAd.setAdListener(new AbstractAdListener() {
             @Override
-            public void onAdLoaded() {
-
-
+            public void onError(Ad ad, AdError error) {
+                super.onError(ad, error);
             }
 
             @Override
-            public void onAdFailedToLoad(int errorCode) {
-                // Code to be executed when an ad request fails.
+            public void onAdLoaded(Ad ad) {
+                super.onAdLoaded(ad);
             }
 
             @Override
-            public void onAdOpened() {
-            }
-
-            @Override
-            public void onAdLeftApplication() {
+            public void onAdClicked(Ad ad) {
+                super.onAdClicked(ad);
 
 
                 int add = blockCount + 1;
@@ -259,23 +303,47 @@ public class SmsActivity extends AppCompatActivity {
                         }
                     });
                 }
+            }
 
+            @Override
+            public void onInterstitialDisplayed(Ad ad) {
+                super.onInterstitialDisplayed(ad);
+            }
+
+            @Override
+            public void onInterstitialDismissed(Ad ad) {
+                super.onInterstitialDismissed(ad);
+
+                adsShowScore = 0;
+                mInterstitialAd.loadAd();
 
             }
 
             @Override
-            public void onAdClosed() {
-
-                score = 1;
-                int add = smsControl.getScore() + score;
-                smsControl.setStoreScore(add);
-                startActivity(new Intent(SmsActivity.this, SmsActivity.class));
-
-
-
+            public void onLoggingImpression(Ad ad) {
+                super.onLoggingImpression(ad);
             }
         });
+        mInterstitialAd.loadAd();
 
+
+
+
+    }
+
+    private void nextSMS() {
+
+        adsShowScore = adsShowScore + 1;
+        updateData = updateData +1;
+        updateQuestion(updateData);
+        smsCounterTV.setText(updateData + "/" + size);
+        waitingTV2.setVisibility(View.VISIBLE);
+        smsNextButton.setVisibility(View.GONE);
+        startTimer2();
+
+        if (!mInterstitialAd.isAdLoaded()){
+        mInterstitialAd.loadAd();
+        }
 
     }
 
@@ -290,11 +358,50 @@ public class SmsActivity extends AppCompatActivity {
 
     private void updateQuestion(int num) {
 
-        smsShowTV.setText(smsClass.getQuestion(num));
-        smsText = smsClass.getQuestion(num);
+        if (!smsList.isEmpty()){
+            smsClass = smsList.get(num);
+            smsShowTV.setText(smsClass.getmSMS());
+            currentData = smsClass.getmSMS();
+
+
+        }else {
+            Toast.makeText(this, "Data is not available", Toast.LENGTH_SHORT).show();
+        }
+
 
 
     }
+
+    @Override
+    protected void onDestroy() {
+        if (mRewardedVideoAd != null){
+            mRewardedVideoAd.destroy();
+        } if (mInterstitialAd != null){
+            mInterstitialAd.destroy();
+        }
+        super.onDestroy();
+    }
+
+    private void dataStatus() {
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(SmsActivity.this);
+
+        builder.setTitle("Congratulation!")
+                .setMessage("You are completed all SMS")
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(SmsActivity.this, MainActivity.class));
+                        finish();
+
+                    }
+                });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+    }
+
 
     private void shareApp(String text) {
 
@@ -304,6 +411,53 @@ public class SmsActivity extends AppCompatActivity {
         intent.putExtra(Intent.EXTRA_SUBJECT, shareSub);
         intent.putExtra(Intent.EXTRA_TEXT, text);
         startActivity(Intent.createChooser(intent, "SMS World"));
+
+    }
+
+
+    private void smsLoad() {
+
+
+        CollectionReference collectionReference = mFirestore.collection("SMS_Collection");
+        collectionReference.orderBy("mTime", Query.Direction.DESCENDING)
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+
+                if (task.isSuccessful()){
+
+                    if (task.isSuccessful()) {
+
+                        smsList.clear();
+
+                        for (DocumentSnapshot document : task.getResult()) {
+
+                            SmsClass smsClass = new SmsClass(
+                                    document.getString("mSMS"),
+                                    document.getString("mTime")
+                            );
+
+                            smsList.add(smsClass);
+
+                        }
+                        updateQuestion(0);
+                        size = smsList.size()-1;
+                        smsCounterTV.setText("0"+"/"+size);
+
+                    } else {
+                        Toast.makeText(SmsActivity.this, "Quiz Show is Field", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+            }
+        });
+
 
     }
 
@@ -474,10 +628,6 @@ public class SmsActivity extends AppCompatActivity {
 
 
     }
-
-
-
-
 
 
 }

@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
     DrawerLayout drawer;
     NavigationView navigationView;
-    TextView userName, homeMainPointTV, waitingTimerShow;
+    TextView userName, waitingTimerShow;
     CircleImageView circleImageShowId, quiz, help, questionImage, smsImage;
 
     FirebaseAuth auth;
@@ -97,20 +97,16 @@ public class MainActivity extends AppCompatActivity {
         myRef = database.getReference("Users");
 
         userName = findViewById(R.id.homeProfileName_id);
-        homeMainPointTV = findViewById(R.id.homeMainPoint_id);
         waitingTimerShow = findViewById(R.id.waitingTimerShow_id);
         circleImageShowId = findViewById(R.id.circleImageShowId);
-        TextView email = findViewById(R.id.homeProfileEmail_id);
         waitingTimerShow.setVisibility(View.GONE);
         waitingControl = new WaitingControl(this);
 
 
         if (user != null) {
             uId = user.getUid();
-            notificationMethod();
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             userName.setText(user.getDisplayName());
-            email.setText(user.getEmail());
             Picasso.get().load(user.getPhotoUrl()).placeholder(R.drawable.person_black_24dp).into(circleImageShowId);
 
         }
@@ -228,35 +224,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void notificationMethod() {
-
-
-        myRef.child("UserMainPoints").child(uId).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    String value = dataSnapshot.getValue(String.class);
-                    homeMainPointTV.setText("Your Points: " + value);
-
-                }
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-
-            }
-        });
-
-
-    }
 
 
     private void userProfile() {
 
         View userProfileUD = navigationView.getHeaderView(0);
         TextView userName = userProfileUD.findViewById(R.id.profileUserName_id);
-        TextView userEmail = userProfileUD.findViewById(R.id.profileUserEmail_id);
         ImageView image = userProfileUD.findViewById(R.id.profileImageView);
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
@@ -264,7 +237,6 @@ public class MainActivity extends AppCompatActivity {
 
         Picasso.get().load(user.getPhotoUrl()).placeholder(getDrawable(R.drawable.app_logo)).into(image);
         userName.setText(user.getDisplayName());
-        userEmail.setText(user.getEmail());
 
 
     }

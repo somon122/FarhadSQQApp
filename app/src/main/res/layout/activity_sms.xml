@@ -66,7 +66,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/smsBanner_id"
+        app:layout_constraintBottom_toTopOf="@+id/banner_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent">
@@ -100,17 +100,15 @@
 
     </LinearLayout>
 
-    <com.google.android.gms.ads.AdView
-        android:id="@+id/smsBanner_id"
+    <LinearLayout
+        android:id="@+id/banner_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        ads:adSize="BANNER"
-        ads:adUnitId="@string/banner_ad_unit_id"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        android:orientation="horizontal" />
 
-    </com.google.android.gms.ads.AdView>
 
 
     <TextView
@@ -118,6 +116,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:textColor="#fff"
+        android:visibility="gone"
         android:background="#0582E6"
         android:textSize="30sp"
         android:text="00:00:00"

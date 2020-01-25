@@ -43,29 +43,6 @@
 
 
         <TextView
-            android:id="@+id/homeProfileEmail_id"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="UserName"
-            android:textColor="#fff"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/homeProfileName_id" />
-
-        <TextView
-            android:id="@+id/homeMainPoint_id"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:gravity="center"
-            android:text="Your point: oo"
-            android:textColor="#000"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/homeProfileEmail_id" />
-
-        <TextView
             android:id="@+id/ffffff"
             android:layout_width="match_parent"
             android:layout_height="3dp"
@@ -73,7 +50,7 @@
             android:background="#B3B2B2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/homeMainPoint_id" />
+            app:layout_constraintTop_toBottomOf="@+id/homeProfileName_id" />
 
 
         <LinearLayout
@@ -239,6 +216,7 @@
             android:background="#0B62B8"
             android:gravity="center"
             android:text="00:00:00"
+            android:visibility="gone"
             android:textColor="#FDFCFC"
             android:textSize="30sp"
             app:layout_constraintEnd_toEndOf="parent"
